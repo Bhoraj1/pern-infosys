@@ -18,7 +18,6 @@ import AdminSignup from "./pages/Admin/AdminSignup.jsx";
 import ServiceDetails from "./pages/ServiceDetail.jsx";
 import UpdateTraining from "./pages/Admin/training/UpdateTraining.jsx";
 import UpdateStudent from "./pages/Admin/students/UpdateStudent.jsx";
-import UpdateService from "./pages/Admin/service/UpdateService.jsx";
 import FAQ from "./components/FAQ.jsx";
 import Facts from "./components/Facts.jsx";
 import Teams from "./components/Teams.jsx";
@@ -30,6 +29,7 @@ import FAQForm from "./pages/Admin/FAQ/FAQ_Form";
 import TeamForm from "./pages/Admin/Team/TeamForm.jsx";
 import ReviewForm from "./pages/Admin/revieww/ReviewForm.jsx";
 import BlogForm from "./pages/Admin/blog/BlogForm.jsx";
+import ServicesForm from "./pages/Admin/service/ServicesForm.jsx";
 
 function App() {
   return (
@@ -77,7 +77,10 @@ function App() {
               <Route path="/update-review/:reviewId" element={<ReviewForm />} />
               <Route path="/update-blog/:blogId" element={<BlogForm />} />
 
-              <Route path="/update-service/:id" element={<UpdateService />} />
+              <Route
+                path="/update-service/:serviceId"
+                element={<ServicesForm />}
+              />
             </Route>
             <Route path="/admin">
               <Route path="login" element={<AdminLogin />} />

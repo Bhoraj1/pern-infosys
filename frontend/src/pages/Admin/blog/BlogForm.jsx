@@ -1,4 +1,4 @@
-import { TextInput, Textarea, Button, Label, FileInput } from "flowbite-react";
+import { TextInput, Button, Label, FileInput } from "flowbite-react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useEffect, useState } from "react";
@@ -98,11 +98,8 @@ export default function BlogForm() {
         );
       }
       setApiUpdated((prev) => ({ ...prev, blogs: !prev.blogs }));
-      if (blogId) {
-        navigate("/dashboard?tab=blog-dash");
-      } else {
-        return null;
-      }
+
+      navigate("/dashboard?tab=blog-dash");
     } catch (error) {
       setLoading(false);
       toast.error("Something went wrong!");
@@ -120,7 +117,7 @@ export default function BlogForm() {
         {blogId ? "Update a Blog Post" : "Post a new Blog "}
       </h2>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} method="POST" encType="multipart/form-data">
         <div className="mb-4">
           <Label htmlFor="name" value="Posted By" />
           <TextInput
@@ -149,10 +146,10 @@ export default function BlogForm() {
           <FileInput
             type="file"
             id="image"
+            name="image"
             className="mt-1"
             accept="image/*"
             onChange={handleInputChange}
-            required
           />
         </div>
         {formData.image && (
@@ -178,16 +175,6 @@ export default function BlogForm() {
             value={formData.description}
           />
         </div>
-        {/* <div className="mb-4">
-          <Label htmlFor="description" value="Description" />
-          <Textarea
-            placeholder="Write your blog post description here"
-            required
-            className="mt-1"
-            rows="4"
-          />
-        </div> */}
-
         <Button type="submit" className="w-full mt-4">
           {blogId ? "Update Post" : "Add Post"}
         </Button>

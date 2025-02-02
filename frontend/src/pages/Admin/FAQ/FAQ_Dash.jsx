@@ -7,7 +7,7 @@ import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 export default function FAQ_Dash() {
-  const { faqs, setFaqs} = useFaqs();
+  const { faqs, setFaqs } = useFaqs();
   const navigate = useNavigate();
   const { adminDetails } = useSelector((state) => state.admin);
   const [showModal, setShowModal] = useState(false);
@@ -19,7 +19,7 @@ export default function FAQ_Dash() {
         method: "DELETE",
       });
       if (res.ok) {
-        setFaqs((prev) => prev.filter((faq) => faq._id !== faqIdTodelete));
+        setFaqs((prev) => prev.filter((faq) => faq.id !== faqIdTodelete));
         setShowModal(false);
         toast.success("FAQ Deleted Successfully!");
       }
@@ -29,7 +29,7 @@ export default function FAQ_Dash() {
   };
   return (
     <div className="table-auto mt-4 overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500 ">
-      {adminDetails.isAdmin && faqs.length > 0 ? (
+      {adminDetails.user.isAdmin && faqs.length > 0 ? (
         <Table hoverable className="shadow-md">
           <Table.Head>
             <Table.HeadCell>Post Date</Table.HeadCell>
@@ -51,7 +51,7 @@ export default function FAQ_Dash() {
                 <Table.Cell>{faq.answer}</Table.Cell>
                 <Table.Cell>
                   <span
-                    onClick={() => navigate(`/update-faq/${faq._id}`)}
+                    onClick={() => navigate(`/update-faq/${faq.id}`)}
                     className="hover:underline text-blue-800 cursor-pointer"
                   >
                     Edit
@@ -62,7 +62,7 @@ export default function FAQ_Dash() {
                   <span
                     onClick={() => {
                       setShowModal(true);
-                      setFaqIdTodelete(faq._id);
+                      setFaqIdTodelete(faq.id);
                     }}
                     className="font-medium text-red-600 hover:underline cursor-pointer"
                   >

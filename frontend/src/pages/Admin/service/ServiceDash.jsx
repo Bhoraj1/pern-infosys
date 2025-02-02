@@ -1,17 +1,22 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Table, Button, Modal } from "flowbite-react";
 import { useSelector } from "react-redux";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { Link } from "react-router-dom";
+import { useServices } from "../../../store/ContextAPI";
 
 export default function ServicesDash() {
   const { adminDetails } = useSelector((state) => state.admin);
-  const [services, setServices] = useState([]);
+  const { services, setServices } = useServices();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteServiceId, setDeleteServiceId] = useState("");
-  // const handleEdit = (id) => {
-  //   console.log(`Edit service with id: ${id}`);
-  // };
+  const [selectedService, setSelectedService] = useState(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+
+  const handleViewDetails = (service) => {
+    setSelectedService(service);
+    setShowViewModal(true);
+  };
 
   const handleDeleteService = async () => {
     setShowDeleteModal(false);
@@ -22,13 +27,11 @@ export default function ServicesDash() {
           method: "DELETE",
         }
       );
-      // const data = await res.json();
-
       if (!res.ok) {
         console.log("Error deleting service");
       } else {
         setServices((prev) =>
-          prev.filter((service) => service._id !== deleteServiceId)
+          prev.filter((service) => service.id !== deleteServiceId)
         );
         setShowDeleteModal(false);
       }
@@ -36,25 +39,6 @@ export default function ServicesDash() {
       console.log(error);
     }
   };
-  useEffect(() => {
-    const fetchAllServices = async () => {
-      if (adminDetails.isAdmin) {
-        try {
-          const res = await fetch(`api/backend7/get-services`);
-          const data = await res.json();
-          // console.log(data);
-          if (!res.ok) {
-            console.error(data.message || "Failed to fetch users.");
-          } else {
-            setServices(data.services);
-          }
-        } catch (error) {
-          console.error("Error fetching users:", error);
-        }
-      }
-    };
-    fetchAllServices();
-  }, []);
 
   return (
     <>
@@ -62,35 +46,40 @@ export default function ServicesDash() {
         <h1 className="text-3xl font-bold">Total Services</h1>
       </div>
       <div className="table-auto md:mx-auto p-2 scrollbar scrollbar-track-blue-900 scrollbar-thumb-slate-700 ">
-        {adminDetails.isAdmin && services.length > 0 ? (
+        {adminDetails.user.isAdmin && services.length > 0 ? (
           <Table hoverable className="w-full">
             <Table.Head>
               <Table.HeadCell>Created At</Table.HeadCell>
               <Table.HeadCell>Title</Table.HeadCell>
-              <Table.HeadCell>Description</Table.HeadCell>
+              <Table.HeadCell>View</Table.HeadCell>
               <Table.HeadCell>Edit</Table.HeadCell>
               <Table.HeadCell>Delete</Table.HeadCell>
             </Table.Head>
             <Table.Body>
               {services.map((service) => (
-                <Table.Row key={service._id}>
+                <Table.Row key={service.id}>
                   <Table.Cell>
-                    {new Date(service.createdAt).toDateString()}
+                    {new Date(service.created_at).toDateString()}
                   </Table.Cell>
                   <Table.Cell className="font-semibold text-black">
                     {service.title}
                   </Table.Cell>
-                  <Table.Cell className="max-h-24 overflow-y-auto">
-                    {service.description}
+                  <Table.Cell>
+                    <span
+                      onClick={() => handleViewDetails(service)}
+                      className="bg-blue-950 rounded-full p-1 sm:p-2 text-white cursor-pointer"
+                    >
+                      Details
+                    </span>
                   </Table.Cell>
                   <Table.Cell className="font-medium text-teal-500 hover:underline cursor-pointer">
-                    <Link to={`/update-service/${service._id}`}>Edit</Link>
+                    <Link to={`/update-service/${service.id}`}>Edit</Link>
                   </Table.Cell>
                   <Table.Cell>
                     <Button
                       color="failure"
                       onClick={() => {
-                        setDeleteServiceId(service._id);
+                        setDeleteServiceId(service.id);
                         setShowDeleteModal(true);
                       }}
                     >
@@ -129,6 +118,29 @@ export default function ServicesDash() {
               </Button>
             </div>
           </div>
+        </Modal.Body>
+      </Modal>
+      <Modal
+        show={showViewModal}
+        onClose={() => setShowViewModal(false)}
+        popup
+        size="xl"
+        className="mt-20 sm:mt-0"
+      >
+        <Modal.Header />
+        <Modal.Body>
+          {selectedService && (
+            <div className="max-w-lg mx-auto p-3  bg-white  rounded-xl text-center">
+              <img
+                src={selectedService.image}
+                alt="blog-image"
+                className="mx-auto"
+              />
+              <p className=" p-3 text-gray-800 mb-2">
+                {selectedService.description}
+              </p>
+            </div>
+          )}
         </Modal.Body>
       </Modal>
     </>

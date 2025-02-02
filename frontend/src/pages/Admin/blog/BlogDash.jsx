@@ -21,7 +21,7 @@ export default function BlogDash() {
         method: "DELETE",
       });
       if (res.ok) {
-        setBlogs((prev) => prev.filter((blog) => blog._id !== blogIdTodelete));
+        setBlogs((prev) => prev.filter((blog) => blog.id !== blogIdTodelete));
         setShowModal(false);
         toast.success("Blog Post Deleted Successfully!");
       }
@@ -37,7 +37,7 @@ export default function BlogDash() {
 
   return (
     <div className="table-auto overflow-x-scroll mt-3 md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500  ">
-      {adminDetails?.isAdmin && blogs.length > 0 ? (
+      {adminDetails.user.isAdmin && blogs.length > 0 ? (
         <Table hoverable className="shadow-md">
           <Table.Head>
             <Table.HeadCell>Created AT</Table.HeadCell>
@@ -50,7 +50,7 @@ export default function BlogDash() {
           <Table.Body className="divide-y">
             {blogs.map((blog) => (
               <Table.Row
-                key={blog._id}
+                key={blog.id}
                 className="bg-white dark:border-gray-700 dark:bg-gray-800 "
               >
                 <Table.Cell>
@@ -69,7 +69,7 @@ export default function BlogDash() {
                 </Table.Cell>
                 <Table.Cell>
                   <span
-                    onClick={() => navigate(`/update-blog/${blog._id}`)}
+                    onClick={() => navigate(`/update-blog/${blog.id}`)}
                     className="hover:underline text-blue-800 cursor-pointer"
                   >
                     Edit
@@ -79,7 +79,7 @@ export default function BlogDash() {
                   <span
                     onClick={() => {
                       setShowModal(true);
-                      setBlogIdTodelete(blog._id);
+                      setBlogIdTodelete(blog.id);
                     }}
                     className="font-medium text-red-600 hover:underline cursor-pointer"
                   >

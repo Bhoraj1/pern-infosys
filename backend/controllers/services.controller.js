@@ -1,19 +1,12 @@
-import ServiceModel from "../models/services.model.js";
 import { errorHandler } from "../utils/error.js";
 import multer from "multer";
 import cloudinary from "../helper/cloudniaryConfig.js";
+import { db } from "../config/db.connect.js";
 
-//image storage path
-const imgconfig = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "./uploads/service");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
+// Use memory storage instead of disk storage
+const storage = multer.memoryStorage();
 
-//image filter
+// Image filter (check if file is an image)
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image")) {
     cb(null, true);
@@ -22,9 +15,9 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-//image upload
+// Initialize multer with memory storage
 export const upload = multer({
-  storage: imgconfig,
+  storage: storage,
   fileFilter: fileFilter,
 });
 
@@ -32,25 +25,42 @@ export const services = async (req, res, next) => {
   // console.log(req.file);
   // console.log(req.body);
   const { title, description } = req.body;
-  try {
-    if (!title || !description) {
-      return next(errorHandler(400, "Title and description are required"));
-    }
 
-    const upload = await cloudinary.v2.uploader.upload(req.file.path, {
-      folder: "services",
-      use_filename: true,
-    });
-    const service = new ServiceModel({
-      title,
-      description,
-      imagePath: upload.secure_url,
-    });
-    await service.save();
-    res.json({
-      message: "Service added successfully",
-      service,
-    });
+  // Validate required fields
+  if (!title || !description) {
+    return next(errorHandler(400, "All fields are required"));
+  }
+
+  // Check if an image file was uploaded
+  if (!req.file) {
+    return next(errorHandler(400, "Image file is required"));
+  }
+  try {
+    // Upload the image to Cloudinary and handle the result
+    cloudinary.v2.uploader
+      .upload_stream({ folder: "services" }, async (error, image) => {
+        if (error) {
+          return next(
+            errorHandler(500, "Failed to upload image to Cloudinary")
+          );
+        }
+        const query = `
+        INSERT INTO services (title,description, image )
+        VALUES ($1, $2, $3)
+        RETURNING *;
+      `;
+        const values = [title, description, image.secure_url];
+        try {
+          const { rows } = await db.query(query, values);
+          res.status(201).json({
+            message: "Services successfully created",
+            service: rows[0],
+          });
+        } catch (dbError) {
+          return next(errorHandler(500, "Error saving service to database"));
+        }
+      })
+      .end(req.file.buffer);
   } catch (error) {
     next(error);
   }
@@ -58,44 +68,45 @@ export const services = async (req, res, next) => {
 
 export const getServices = async (req, res, next) => {
   try {
-    const services = await ServiceModel.find();
-    res.json({
-      message: "Services retrieved successfully",
-      services,
-    });
+    if (req.params.id) {
+      const result = await db.query("SELECT * FROM services WHERE id = $1", [
+        req.params.id,
+      ]);
+      const service = result.rows[0];
+      if (!service) {
+        return res.status(404).json({ message: "service not found" });
+      }
+      return res.status(200).json(service);
+    } else {
+      const result = await db.query("SELECT * FROM services");
+      const services = result.rows;
+      if (services.length === 0) {
+        return next(errorHandler(404, "services not found"));
+      }
+      res.status(200).json({
+        message: "service retrieved successfully!",
+        services,
+      });
+    }
   } catch (error) {
     next(error);
   }
 };
 
 export const deleteService = async (req, res, next) => {
-  // console.log(req.user);
-  if (!req.user.isAdmin) {
-    return next(
-      errorHandler(403, "You are not authorized to delete this service")
-    );
-  }
-  const service = await ServiceModel.findById(req.params.id);
-  if (!service) {
-    return next(errorHandler(404, "Service not found"));
-  }
+  const { id } = req.params;
   try {
-    await ServiceModel.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "Service deleted successfully" });
-  } catch (error) {
-    next(error);
-  }
-};
+    const { rows } = await db.query("SELECT * FROM services WHERE id = $1", [
+      id,
+    ]);
 
-export const serviceById = async (req, res, next) => {
-  // console.log("Received valid id:", req.params.id);
-  try {
-    const service = await ServiceModel.findById(req.params.id);
-
-    if (!service) {
-      return next(errorHandler(404, "service not found"));
+    if (rows.length === 0) {
+      return next(errorHandler(404, "Service not found"));
     }
-    res.status(200).json({ service });
+
+    await db.query("DELETE FROM services WHERE id = $1", [id]);
+
+    res.status(200).json({ message: "Service deleted successfully" });
   } catch (error) {
     next(error);
   }
@@ -107,23 +118,77 @@ export const updateService = async (req, res, next) => {
       errorHandler(403, "You are not authorized to update this service")
     );
   }
+
   try {
-    const updatedService = await ServiceModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        $set: {
-          title: req.body.title,
-          description: req.body.description,
-          updatedAt: new Date(),
-        },
-      },
-      { new: true }
-    );
+    const { title, description } = req.body;
+    const { serviceId } = req.params;
+
+    // Prepare fields to update
+    const fieldsToUpdate = [];
+    const values = [];
+
+    if (title) {
+      fieldsToUpdate.push("title");
+      values.push(title);
+    }
+
+    if (description) {
+      fieldsToUpdate.push("description");
+      values.push(description);
+    }
+
+    // Handle image upload if a new file is provided
+    if (req.file) {
+      const result = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.v2.uploader.upload_stream(
+          { folder: "services" },
+          (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          }
+        );
+
+        uploadStream.end(req.file.buffer);
+      });
+
+      fieldsToUpdate.push("image");
+      values.push(result.secure_url);
+    }
+
+    // Check if there are fields to update
+    if (fieldsToUpdate.length === 0) {
+      return next(errorHandler(400, "No fields to update"));
+    }
+
+    // Add serviceId as the last parameter for the WHERE clause
+    values.push(serviceId);
+
+    // Dynamically construct the SET clause
+    const setClause = fieldsToUpdate
+      .map((field, index) => `${field} = $${index + 1}`)
+      .join(", ");
+
+    // Execute the update query
+    const updateQuery = `
+      UPDATE services 
+      SET ${setClause}
+      WHERE id = $${values.length} 
+      RETURNING id, title, image, description
+    `;
+
+    const updatedService = await db.query(updateQuery, values);
+
+    if (updatedService.rowCount === 0) {
+      return next(errorHandler(404, "Service not found"));
+    }
+
     res.status(200).json({
       message: "Service updated successfully",
-      updatedService,
+      updatedService: updatedService.rows[0],
     });
-    // console.log(updatedService);
   } catch (error) {
     next(error);
   }

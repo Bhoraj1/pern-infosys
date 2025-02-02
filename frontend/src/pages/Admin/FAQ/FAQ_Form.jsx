@@ -61,11 +61,8 @@ export default function FAQForm() {
           faqId ? "FAQ updated successfully" : "FAQ added successfully"
         );
         setApiUpdated((prev) => ({ ...prev, faqs: !prev.faqs }));
-        if (faqId) {
-          navigate(`/dashboard?tab=faq-dash`);
-        } else {
-          return null;
-        }
+
+        navigate(`/dashboard?tab=faq-dash`);
       }
     } catch (error) {
       setLoading(false);

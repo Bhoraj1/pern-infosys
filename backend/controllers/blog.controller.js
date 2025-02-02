@@ -35,21 +35,20 @@ export const postBlog = async (req, res, next) => {
   }
 
   try {
-    // Create a writable stream to Cloudinary
-    const uploadStream = cloudinary.v2.uploader.upload_stream(
-      { folder: "blog" },
-      async (error, result) => {
+    cloudinary.v2.uploader
+      .upload_stream({ folder: "blog" }, async (error, result) => {
         if (error) {
-          console.error("Cloudinary Upload Error:", error);
           return next(
             errorHandler(500, "Failed to upload image to Cloudinary")
           );
         }
+
+        // Insert the blog post data into the database
         const query = `
-          INSERT INTO blogs (name, title, image, description)
-          VALUES ($1, $2, $3, $4)
-          RETURNING *;
-        `;
+        INSERT INTO blogs (name, title, image, description)
+        VALUES ($1, $2, $3, $4)
+        RETURNING *;
+      `;
         const values = [name, title, result.secure_url, description];
 
         try {
@@ -59,12 +58,10 @@ export const postBlog = async (req, res, next) => {
             blog: rows[0],
           });
         } catch (dbError) {
-          console.error("Database Query Error:", dbError);
           return next(errorHandler(500, "Error saving blog post to database"));
         }
-      }
-    );
-    uploadStream.end(req.file.buffer);
+      })
+      .end(req.file.buffer);
   } catch (error) {
     next(error);
   }
@@ -104,12 +101,17 @@ export const deleteBlog = async (req, res, next) => {
       errorHandler(403, "You are not authorized to delete this service")
     );
   }
-  const blog = await BlogModel.findById(req.params.id);
-  if (!blog) {
-    return next(errorHandler(404, "Blog not found"));
-  }
   try {
-    await BlogModel.findByIdAndDelete(req.params.id);
+    // Check if the blog exists
+    const { rows } = await db.query("SELECT * FROM blogs WHERE id = $1", [
+      req.params.id,
+    ]);
+    if (rows.length === 0) {
+      return next(errorHandler(404, "Blog not found"));
+    }
+    // Delete the blog
+    await db.query("DELETE FROM blogs WHERE id = $1", [req.params.id]);
+
     res.status(200).json({ message: "Blog post deleted successfully" });
   } catch (error) {
     next(error);
@@ -119,41 +121,85 @@ export const deleteBlog = async (req, res, next) => {
 export const updateBlogPost = async (req, res, next) => {
   if (!req.user.isAdmin) {
     return next(
-      errorHandler(403, "You are not authorized to Update this blog")
+      errorHandler(403, "You are not authorized to update this blog")
     );
   }
+
   try {
-    let imageUrl = req.body.image;
-    if (req.file) {
-      const uploadResult = await new Promise((resolve, reject) => {
-        cloudinary.v2.uploader
-          .upload_stream({ folder: "team" }, (error, result) => {
-            if (error) {
-              reject(new Error("Failed to upload image to Cloudinary"));
-            } else {
-              resolve(result.secure_url);
-            }
-          })
-          .end(req.file.buffer);
-      });
-      imageUrl = uploadResult;
+    const { name, title, description } = req.body;
+    const { blogId } = req.params;
+
+    // Prepare fields to update
+    const fieldsToUpdate = [];
+    const values = [];
+
+    if (name) {
+      fieldsToUpdate.push("name");
+      values.push(name);
     }
 
-    const updateReview = await BlogModel.findByIdAndUpdate(
-      req.params.blogId,
-      {
-        $set: {
-          name: req.body.name,
-          title: req.body.title,
-          image: imageUrl,
-          description: req.body.description,
-        },
-      },
-      { new: true }
-    );
+    if (title) {
+      fieldsToUpdate.push("title");
+      values.push(title);
+    }
+
+    if (description) {
+      fieldsToUpdate.push("description");
+      values.push(description);
+    }
+
+    // Handle image upload if a new file is provided
+    if (req.file) {
+      const result = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.v2.uploader.upload_stream(
+          { folder: "team" },
+          (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          }
+        );
+
+        // Pass the file buffer to the upload stream
+        uploadStream.end(req.file.buffer);
+      });
+
+      fieldsToUpdate.push("image");
+      values.push(result.secure_url);
+    }
+
+    // Check if there are fields to update
+    if (fieldsToUpdate.length === 0) {
+      return next(errorHandler(400, "No fields to update"));
+    }
+
+    // Add blogId as the last parameter for the WHERE clause
+    values.push(blogId);
+
+    // Dynamically construct the SET clause
+    const setClause = fieldsToUpdate
+      .map((field, index) => `${field} = $${index + 1}`)
+      .join(", ");
+
+    // Execute the update query
+    const updateQuery = `
+      UPDATE blogs 
+      SET ${setClause} 
+      WHERE id = $${values.length} 
+      RETURNING id, name, title, image, description
+    `;
+
+    const updatedBlog = await db.query(updateQuery, values);
+
+    if (updatedBlog.rowCount === 0) {
+      return next(errorHandler(404, "Blog not found"));
+    }
+
     res.status(200).json({
       message: "Blog Post updated successfully",
-      updateReview,
+      updatedBlog: updatedBlog.rows[0],
     });
   } catch (error) {
     next(error);

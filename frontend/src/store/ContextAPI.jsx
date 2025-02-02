@@ -6,17 +6,20 @@ const RevivewContext = createContext();
 const BlogContext = createContext();
 const LoaderContext = createContext();
 const ApiUpdateContext = createContext();
+const ServiceContext = createContext();
 
 export const ContextProvider = ({ children }) => {
   const [faqs, setFaqs] = useState([]);
   const [teams, setTeams] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [blogs, setBlogs] = useState([]);
+  const [services, setServices] = useState([]);
   const [apiUpdated, setApiUpdated] = useState({
     faqs: false,
     teams: false,
     reviews: false,
     blogs: false,
+    services: false,
   });
   const { setLoading, loading } = useLoading();
 
@@ -24,7 +27,7 @@ export const ContextProvider = ({ children }) => {
     const fetchFaqs = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`api/backend8/get-faqs`);
+        const res = await fetch(`/api/backend8/get-faqs`);
         const data = await res.json();
         if (!res.ok) {
           setLoading(false);
@@ -98,19 +101,42 @@ export const ContextProvider = ({ children }) => {
     fetchReviews();
   }, [apiUpdated.blogs]);
 
+  useEffect(() => {
+    const fetchAllServices = async () => {
+      try {
+        const res = await fetch(`api/backend7/get-services`);
+        const data = await res.json();
+        console.log(data);
+        if (!res.ok) {
+          console.error("Failed to fetch users.");
+        } else {
+          setServices(data.services);
+        }
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    fetchAllServices();
+  }, [apiUpdated.services]);
+
   return (
     <LoaderContext.Provider value={{ loading, setLoading }}>
-      <BlogContext.Provider value={{ blogs, setBlogs, setLoading }}>
-        <RevivewContext.Provider value={{ reviews, setReviews, setLoading }}>
-          <FaqContext.Provider value={{ faqs, setFaqs, setLoading }}>
-            <TeamContext.Provider value={{ teams, setTeams, setLoading }}>
-              <ApiUpdateContext.Provider value={{ apiUpdated, setApiUpdated }}>
-                {children}
-              </ApiUpdateContext.Provider>
-            </TeamContext.Provider>
-          </FaqContext.Provider>
-        </RevivewContext.Provider>
-      </BlogContext.Provider>
+      <ServiceContext.Provider value={{ services,setServices }}>
+        <BlogContext.Provider value={{ blogs, setBlogs, setLoading }}>
+          <RevivewContext.Provider value={{ reviews, setReviews, setLoading }}>
+            <FaqContext.Provider value={{ faqs, setFaqs, setLoading }}>
+              <TeamContext.Provider value={{ teams, setTeams, setLoading }}>
+                <ApiUpdateContext.Provider
+                  value={{ apiUpdated, setApiUpdated }}
+                >
+                  {children}
+                </ApiUpdateContext.Provider>
+              </TeamContext.Provider>
+            </FaqContext.Provider>
+          </RevivewContext.Provider>
+        </BlogContext.Provider>
+      </ServiceContext.Provider>
     </LoaderContext.Provider>
   );
 };
@@ -120,4 +146,5 @@ export const useTeams = () => useContext(TeamContext);
 export const useReview = () => useContext(RevivewContext);
 export const useBlog = () => useContext(BlogContext);
 export const useLoader = () => useContext(LoaderContext);
+export const useServices = () => useContext(ServiceContext);
 export const useApiUpdate = () => useContext(ApiUpdateContext);
