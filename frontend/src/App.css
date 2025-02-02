@@ -1,0 +1,12 @@
+.nav-link {
+  font-weight: "bold";
+  color: "#F79F35"
+}
+
+.nav-link.active {
+  font-weight: bold;
+  font-size: 17px;
+  border-bottom: 2px solid #F79F35;
+}
+
+

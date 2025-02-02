@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Tw Cen MT Condensed Bold";
+  src: url("./assets/fonts/TwCenMTCondensedBold.ttf") format("truetype");
+  font-weight: bold;
+  font-style: normal;
+}
+
+@layer base {
+  html,
+  body {
+    @apply overflow-x-hidden;
+  }
+}
+
+/* .post-content p{
+ margin-bottom:0.5rem;
+}
+.post-content h1{
+  font-size:1.5rem;
+  font-weight:600;
+  font-family:sans-serif;
+  margin:1.5rem 0;
+} */
