@@ -30,12 +30,11 @@ export default function AdminSignup() {
         },
         body: JSON.stringify(formData),
       });
-      const data = await res.json();
       if (res.ok) {
         toast.success("Sign Up successful!");
         navigate("/admin/login");
       } else {
-        toast.error(data.message || "Incorrect credentials");
+        toast.error("Incorrect credentials");
       }
     } catch (error) {
       toast.error("Invalid credentials", error);

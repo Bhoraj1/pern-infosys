@@ -1,7 +1,7 @@
 import multer from "multer";
 import { errorHandler } from "../utils/error.js";
 import cloudinary from "../helper/cloudniaryConfig.js";
-import BlogModel from "../models/blog.model.js";
+import { db } from "../config/db.connect.js";
 
 // Use memory storage instead of disk storage
 const storage = multer.memoryStorage();
@@ -22,9 +22,6 @@ export const upload = multer({
 });
 
 export const postBlog = async (req, res, next) => {
-  // console.log(req.file.originalname)
-  // console.log(req.body);
-  // Extract data from the request body
   const { name, title, description } = req.body;
 
   // Validate required fields
@@ -37,38 +34,37 @@ export const postBlog = async (req, res, next) => {
     return next(errorHandler(400, "Image file is required"));
   }
 
-  // Upload image to Cloudinary directly from memory
   try {
-    const uploadResult = await cloudinary.v2.uploader.upload_stream(
+    // Create a writable stream to Cloudinary
+    const uploadStream = cloudinary.v2.uploader.upload_stream(
       { folder: "blog" },
-      (error, result) => {
+      async (error, result) => {
         if (error) {
+          console.error("Cloudinary Upload Error:", error);
           return next(
             errorHandler(500, "Failed to upload image to Cloudinary")
           );
         }
+        const query = `
+          INSERT INTO blogs (name, title, image, description)
+          VALUES ($1, $2, $3, $4)
+          RETURNING *;
+        `;
+        const values = [name, title, result.secure_url, description];
 
-        const postBlog = new BlogModel({
-          name,
-          title,
-          image: result.secure_url,
-          description,
-        });
-
-        postBlog
-          .save()
-          .then(() => {
-            res.status(201).json({
-              message: "Blog Post successfully",
-              postBlog,
-            });
-          })
-          .catch(next);
+        try {
+          const { rows } = await db.query(query, values);
+          res.status(201).json({
+            message: "Blog Post successfully created",
+            blog: rows[0],
+          });
+        } catch (dbError) {
+          console.error("Database Query Error:", dbError);
+          return next(errorHandler(500, "Error saving blog post to database"));
+        }
       }
     );
-
-    // Pipe the image buffer to the upload stream
-    uploadResult.end(req.file.buffer);
+    uploadStream.end(req.file.buffer);
   } catch (error) {
     next(error);
   }
@@ -77,21 +73,22 @@ export const postBlog = async (req, res, next) => {
 export const getBlog = async (req, res, next) => {
   try {
     if (req.params.id) {
-      const blogs = await BlogModel.findById(req.params.id);
-      if (!blogs) {
+      const result = await db.query("SELECT * FROM blogs WHERE id = $1", [
+        req.params.id,
+      ]);
+      const blog = result.rows[0];
+      if (!blog) {
         return res.status(404).json({ message: "Blog not found" });
       }
-      return res.status(200).json(blogs);
+      return res.status(200).json(blog);
     } else {
-      const blogs = await BlogModel.find();
+      const result = await db.query("SELECT * FROM blogs");
+      const blogs = result.rows;
       if (blogs.length === 0) {
-        return res.status(404).json({
-          message: "Review not found",
-        });
+        return next(errorHandler(404, "blogs not found"));
       }
-
       res.status(200).json({
-        message: "Review retrieved successfully",
+        message: "Blogs retrieved successfully!",
         blogs,
       });
     }

@@ -1,7 +1,6 @@
 import express from "express";
-import mongoose from "mongoose";
 import dotenv from "dotenv";
-import cookieParser from "cookie-parser";
+import "./config/db.connect.js";
 import Userinquiry from "./routes/inquiry.route.js";
 import adminLogin from "./routes/admin.route.js";
 import UserAdmission from "./routes/admission.route.js";
@@ -14,25 +13,13 @@ import faqRoute from "./routes/faq.route.js";
 import teamRoute from "./routes/team.route.js";
 import reviewRoute from "./routes/review.route.js";
 import blogRoute from "./routes/blog.route.js";
-
-const app = express();
+import cookieParser from "cookie-parser";
 
 dotenv.config();
+const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-mongoose
-  .connect(process.env.MONGO_URL)
-  .then(() => {
-    console.log("Connected to MongoDB Successfully!");
-  })
-  .catch((err) => {
-    console.error("Error connecting to MongoDB!", err);
-  });
-
-app.listen(3000, () => {
-  console.log(`Server running on port 3000  !`);
-});
 
 app.use("/api/admin", adminLogin);
 app.use("/api/backend", Userinquiry);
@@ -55,4 +42,9 @@ app.use((err, req, res, next) => {
     statusCode,
     message,
   });
+});
+
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
