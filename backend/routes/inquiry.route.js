@@ -10,7 +10,7 @@ import { verifyToken } from "../utils/verifyUser.js";
 const router = express.Router();
 
 router.post("/inquiry", createInquiry);
-router.get("/getinquirys", verifyToken, getinquiry);
+router.get("/getinquirys/:id?", verifyToken, getinquiry);
 router.delete("/deleteInquiry/:id", verifyToken, deleteInquiry);
 router.get("/title", getTrainingsAndServices);
 

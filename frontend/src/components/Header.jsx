@@ -231,7 +231,9 @@ export default function Header() {
                         <option key={index} value={item.title}>
                           {item.title}
                         </option>
+                        
                       ))}
+                      <option>Web Development</option>
                     </select>
                   </div>
                 </div>

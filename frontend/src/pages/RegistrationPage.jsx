@@ -22,23 +22,14 @@ export default function RegistrationPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const submissionData = {
-      ...formData,
-      courseName: course.title,
-      courseDuration: course.courseDuration,
-      totalAmount: course.totalAmount,
-      timeSlot: course.timeSlot,
-    };
-    console.log(submissionData);
     try {
       const res = await fetch("/api/backend2/admission", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(submissionData),
+        body: JSON.stringify(formData),
       });
-      const data = await res.json();
       if (res.ok) {
         toast.success(
           "Admission successful! Please pay the fee using Esewa or Khalti."
@@ -69,7 +60,7 @@ export default function RegistrationPage() {
             <Label value="Parent's Name" />
             <TextInput
               type="text"
-              id="parentName"
+              id="parent_name"
               placeholder="Enter your  Parent's name"
               onChange={handleChange}
             />

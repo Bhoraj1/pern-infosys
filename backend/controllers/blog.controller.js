@@ -102,14 +102,12 @@ export const deleteBlog = async (req, res, next) => {
     );
   }
   try {
-    // Check if the blog exists
     const { rows } = await db.query("SELECT * FROM blogs WHERE id = $1", [
       req.params.id,
     ]);
     if (rows.length === 0) {
       return next(errorHandler(404, "Blog not found"));
     }
-    // Delete the blog
     await db.query("DELETE FROM blogs WHERE id = $1", [req.params.id]);
 
     res.status(200).json({ message: "Blog post deleted successfully" });
@@ -152,7 +150,7 @@ export const updateBlogPost = async (req, res, next) => {
     if (req.file) {
       const result = await new Promise((resolve, reject) => {
         const uploadStream = cloudinary.v2.uploader.upload_stream(
-          { folder: "team" },
+          { folder: "blogs" },
           (error, result) => {
             if (error) {
               reject(error);

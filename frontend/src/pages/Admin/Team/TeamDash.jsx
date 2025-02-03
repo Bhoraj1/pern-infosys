@@ -31,7 +31,7 @@ export default function TeamDash() {
         }
       );
       if (res.ok) {
-        setTeams((prev) => prev.filter((team) => team._id !== teamIdTodelete));
+        setTeams((prev) => prev.filter((team) => team.id !== teamIdTodelete));
         setShowModal(false);
         toast.success("Team Member Deleted Successfully!");
       }
@@ -42,7 +42,7 @@ export default function TeamDash() {
 
   return (
     <div className="table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500  ">
-      {adminDetails?.isAdmin && teams.length > 0 ? (
+      {adminDetails.user.isAdmin && teams.length > 0 ? (
         <Table hoverable className="shadow-md">
           <Table.Head>
             <Table.HeadCell>Image</Table.HeadCell>
@@ -56,7 +56,7 @@ export default function TeamDash() {
           <Table.Body className="divide-y">
             {teams.map((user) => (
               <Table.Row
-                key={user._id}
+                key={user.id}
                 className="bg-white dark:border-gray-700 dark:bg-gray-800 "
               >
                 <Table.Cell>
@@ -68,7 +68,7 @@ export default function TeamDash() {
                 </Table.Cell>
                 <Table.Cell>{user.name}</Table.Cell>
                 <Table.Cell>{user.email}</Table.Cell>
-                <Table.Cell>{user.phoneNumber}</Table.Cell>
+                <Table.Cell>{user.phonenumber}</Table.Cell>
                 <Table.Cell>
                   <span
                     onClick={() => handleViewDetails(user)}
@@ -79,7 +79,7 @@ export default function TeamDash() {
                 </Table.Cell>
                 <Table.Cell>
                   <span
-                    onClick={() => navigate(`/update-teamMember/${user._id}`)}
+                    onClick={() => navigate(`/update-teamMember/${user.id}`)}
                     className="hover:underline text-blue-800 cursor-pointer"
                   >
                     Edit
@@ -89,7 +89,7 @@ export default function TeamDash() {
                   <span
                     onClick={() => {
                       setShowModal(true);
-                      setTeamIdTodelete(user._id);
+                      setTeamIdTodelete(user.id);
                     }}
                     className="font-medium text-red-600 hover:underline cursor-pointer"
                   >
@@ -179,9 +179,9 @@ export default function TeamDash() {
               {/* Social Media Icons */}
               <h3 className="text-xl font-semibold">Social Media icons</h3>
               <div className="flex justify-center gap-4 mt-4">
-                {selectedTeam.socialMedia?.facebook && (
+                {selectedTeam.socialmedia?.facebook && (
                   <a
-                    href={selectedTeam.socialMedia.facebook}
+                    href={selectedTeam.socialmedia.facebook}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 hover:text-blue-800 transition"
@@ -189,9 +189,9 @@ export default function TeamDash() {
                     <FaFacebook size={28} />
                   </a>
                 )}
-                {selectedTeam.socialMedia?.twitter && (
+                {selectedTeam?.socialmedia?.twitter && (
                   <a
-                    href={selectedTeam.socialMedia.twitter}
+                    href={selectedTeam?.socialmedia?.twitter}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-400 hover:text-blue-600 transition"
@@ -199,9 +199,9 @@ export default function TeamDash() {
                     <FaTwitter size={28} />
                   </a>
                 )}
-                {selectedTeam.socialMedia?.linkedin && (
+                {selectedTeam.socialmedia?.linkedin && (
                   <a
-                    href={selectedTeam.socialMedia.linkedin}
+                    href={selectedTeam.socialmedia.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-700 hover:text-blue-900 transition"
@@ -209,9 +209,9 @@ export default function TeamDash() {
                     <FaLinkedin size={28} />
                   </a>
                 )}
-                {selectedTeam.socialMedia?.github && (
+                {selectedTeam.socialmedia?.github && (
                   <a
-                    href={selectedTeam.socialMedia.github}
+                    href={selectedTeam.socialmedia.github}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-gray-900 hover:text-gray-600 transition"

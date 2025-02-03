@@ -9,7 +9,7 @@ import { verifyToken } from "../utils/verifyUser.js";
 const router = express.Router();
 
 router.post("/admission", admission);
-router.get("/getadmissions", verifyToken, getAdmissions);
+router.get("/getadmissions/:id?", verifyToken, getAdmissions);
 router.delete("/deleteadmission/:id", verifyToken, deleteAdmission);
 
 export default router;

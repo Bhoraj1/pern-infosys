@@ -23,7 +23,7 @@ export default function ReviewForm() {
       fetch(`/api/backend10/getReview/${reviewId}`)
         .then((res) => res.json())
         .then((data) => {
-          // console.log(data);
+          console.log(data);
           setFormData({
             name: data.name,
             review: data.review,
@@ -39,7 +39,7 @@ export default function ReviewForm() {
       setFormData({ ...formData, image: e.target.files[0] });
     } else {
       // For other fields (name, department, bio, description)
-      setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
+      setFormData({ ...formData, [e.target.id]: e.target.value });
     }
   };
 
@@ -47,12 +47,7 @@ export default function ReviewForm() {
     e.preventDefault();
 
     // Simple validation
-    if (
-      !formData.name ||
-      !formData.review ||
-      formData.rating === "0" ||
-      !formData.image
-    ) {
+    if (!formData.name || !formData.review || formData.rating === "0") {
       toast.error("Please fill all fields and provide a rating!");
       return;
     }
@@ -93,11 +88,8 @@ export default function ReviewForm() {
         );
       }
       setApiUpdated((prev) => ({ ...prev, reviews: !prev.reviews }));
-      if (reviewId) {
-        navigate(`/dashboard?tab=review-dash`);
-      } else {
-        return null;
-      }
+
+      navigate(`/dashboard?tab=review-dash`);
     } catch (error) {
       setLoading(false);
       toast.error("Something went wrong!");
@@ -152,8 +144,6 @@ export default function ReviewForm() {
             className="m-2 p-2 border rounded w-48"
             required
           >
-            <option value="0">0</option>
-            <option value="0.5">0.5</option>
             <option value="1">1</option>
             <option value="1.5">1.5</option>
             <option value="2">2</option>
@@ -174,7 +164,7 @@ export default function ReviewForm() {
             className="mt-1"
             accept="image/*"
             onChange={handleInputChange}
-            required
+            required={!reviewId}
           />
         </div>
 

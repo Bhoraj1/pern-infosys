@@ -1,47 +1,17 @@
-import admissionModel from "../models/admission.model.js";
+import { db } from "../config/db.connect.js";
 import { errorHandler } from "../utils/error.js";
 
 export const admission = async (req, res, next) => {
-  const {
-    name,
-    parentName,
-    email,
-    number,
-    address,
-    courseName,
-    courseDuration,
-    timeSlot,
-    totalAmount,
-    amountPaid,
-    paymentMethod,
-  } = req.body;
-
-  // console.log("Admission request received:", req.body);
-  //avoiding the courseName from here because backend always check id of the field from frontend but we are sending the courseName dynamically from frontend
-  if (!name || !parentName || !email || !number || !address) {
-    return next(errorHandler(400, "All fields are required"));
-  }
-  const admissionUser = new admissionModel({
-    name,
-    parentName,
-    email,
-    number,
-    address,
-    courseName,
-    courseDuration,
-    timeSlot,
-    totalAmount,
-    amountPaid,
-    paymentMethod,
-  });
-
+  const { name, email, address, parent_name, number } = req.body;
   try {
-    await admissionUser.save();
-    res.status(201).json({
-      message: "Admission successful",
-      admissionUser,
-    });
-    // console.log(admissionUser);
+    if (!name || !email || !address || !parent_name || !number) {
+      return next(errorHandler(400, "All fields are required"));
+    }
+    await db.query(
+      "INSERT INTO admissions (name, email,address, parent_name, number) VALUES($1, $2, $3, $4, $5) RETURNING *",
+      [name, email, address, parent_name, number]
+    );
+    res.status(201).send("Admission success!");
   } catch (error) {
     next(error);
   }
@@ -49,27 +19,26 @@ export const admission = async (req, res, next) => {
 
 export const getAdmissions = async (req, res, next) => {
   try {
-    const startIndex = parseInt(req.query.startIndex) || 0;
-    const limit = parseInt(req.query.limit) || 9;
-    const sortDirection = req.body.sort === "asc" ? 1 : -1;
-
-    const admissions = await admissionModel
-      .find()
-      .sort({ createdAt: sortDirection })
-      .skip(startIndex)
-      .limit(limit);
-
-    const totalAdmissions = await admissionModel.countDocuments();
-    const now = new Date();
-    const oneMonthAgo = new Date(
-      now.getFullYear(),
-      now.getMonth() - 1,
-      now.getDate()
-    );
-    const lstMonthAdmissions = await admissionModel.countDocuments({
-      createdAt: { $gte: oneMonthAgo },
-    });
-    res.status(200).json({ admissions, totalAdmissions, lstMonthAdmissions });
+    if (req.params.id) {
+      const result = await db.query("SELECT * FROM admissions WHERE id = $1", [
+        req.params.id,
+      ]);
+      const faq = result.rows[0];
+      if (!faq) {
+        return res.status(404).json({ message: "admission not found" });
+      }
+      return res.status(200).json(faq);
+    } else {
+      const result = await db.query("SELECT * FROM admissions");
+      const admissions = result.rows;
+      if (admissions.length === 0) {
+        return next(errorHandler(404, "Admission not found"));
+      }
+      res.status(200).json({
+        message: "Admission retrieved successfully!",
+        admissions,
+      });
+    }
   } catch (error) {
     next(error);
   }

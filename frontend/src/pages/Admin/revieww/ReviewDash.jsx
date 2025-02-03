@@ -22,7 +22,7 @@ export default function ReviewDash() {
       );
       if (res.ok) {
         setReviews((prev) =>
-          prev.filter((review) => review._id !== reviewIdTodelete)
+          prev.filter((review) => review.id !== reviewIdTodelete)
         );
         setShowModal(false);
         toast.success("Review Deleted Successfully!");
@@ -33,7 +33,7 @@ export default function ReviewDash() {
   };
   return (
     <div className="table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500  ">
-      {adminDetails?.isAdmin && reviews.length > 0 ? (
+      {adminDetails.user.isAdmin && reviews?.length > 0 ? (
         <Table hoverable className="shadow-md">
           <Table.Head>
             <Table.HeadCell>Image</Table.HeadCell>
@@ -46,7 +46,7 @@ export default function ReviewDash() {
           <Table.Body className="divide-y">
             {reviews.map((review) => (
               <Table.Row
-                key={review._id}
+                key={review.id}
                 className="bg-white dark:border-gray-700 dark:bg-gray-800 "
               >
                 <Table.Cell>
@@ -64,7 +64,7 @@ export default function ReviewDash() {
                 </Table.Cell>
                 <Table.Cell>
                   <span
-                    onClick={() => navigate(`/update-review/${review._id}`)}
+                    onClick={() => navigate(`/update-review/${review.id}`)}
                     className="hover:underline text-blue-800 cursor-pointer"
                   >
                     Edit
@@ -74,7 +74,7 @@ export default function ReviewDash() {
                   <span
                     onClick={() => {
                       setShowModal(true);
-                      setReviewIdTodelete(review._id);
+                      setReviewIdTodelete(review.id);
                     }}
                     className="font-medium text-red-600 hover:underline cursor-pointer"
                   >

@@ -1,57 +1,48 @@
-import Inquiry from "../models/inquiry.model.js";
-import TrainingModel from "../models/newTraining.model.js";
-import ServiceModel from "../models/services.model.js";
+import { db } from "../config/db.connect.js";
 import { errorHandler } from "../utils/error.js";
 
 export const createInquiry = async (req, res, next) => {
   const { name, email, number, services, message } = req.body;
 
-  // console.log("Inquiry request received:", req.body);
-
-  if (!name || !email || !number || !services || !message) {
-    return next(errorHandler(400, "All fields are required"));
-  }
-  const inquiryUser = new Inquiry({
-    name,
-    email,
-    number,
-    services,
-    message,
-  });
-
   try {
-    await inquiryUser.save();
-    res.status(201).json("Success");
+    if (!name || !email || !number || !message) {
+      return next(errorHandler("All fields are required"));
+    }
+
+    await db.query(
+      "INSERT INTO inquarys(name, email, number, services, message) VALUES($1, $2, $3, $4, $5) RETURNING *",
+      [name, email, number, services, message]
+    );
+
+    res.status(201).send("Inquary Added Successfully!");
   } catch (error) {
-    console.error("Error saving inquiry:", error);
     next(error);
   }
 };
 
 export const getinquiry = async (req, res, next) => {
   try {
-    const startIndex = parseInt(req.query.startIndex) || 0;
-    const limit = parseInt(req.query.limit) || 9;
-    const sortDirection = req.body.sort === "asc" ? 1 : -1;
-
-    const users = await Inquiry.find()
-      .sort({ createdAt: sortDirection })
-      .skip(startIndex)
-      .limit(limit);
-
-    const totalUsers = await Inquiry.countDocuments();
-    const now = new Date();
-    const oneMonthAgo = new Date(
-      now.getFullYear(),
-      now.getMonth() - 1,
-      now.getDate()
-    );
-    const lstMonthUsers = await Inquiry.countDocuments({
-      createdAt: { $gte: oneMonthAgo },
-    });
-    res.status(200).json({ users, totalUsers, lstMonthUsers });
+    if (req.params.id) {
+      const result = await db.query("SELECT * FROM inquarys WHERE id = $1", [
+        req.params.id,
+      ]);
+      const inquary = result.rows[0];
+      if (!inquary) {
+        return res.status(404).json({ message: "inquary not found" });
+      }
+      return res.status(200).json(inquary);
+    } else {
+      const result = await db.query("SELECT * FROM inquarys");
+      const inquarys = result.rows;
+      if (inquarys.length === 0) {
+        return next(errorHandler(404, "inquarys not found"));
+      }
+      res.status(200).json({
+        message: "inquarys retrieved successfully!",
+        inquarys,
+      });
+    }
   } catch (error) {
-    console.error("Error quickey inquiry:", error);
     next(error);
   }
 };
@@ -62,13 +53,17 @@ export const deleteInquiry = async (req, res, next) => {
       errorHandler(403, "You are not allowed to delete this inquiry")
     );
   }
+  const { id } = req.params;
   try {
-    const deletedAdmission = await Inquiry.findByIdAndDelete(req.params.id);
-
-    if (!deletedAdmission) {
-      return next(errorHandler(404, "Admission not found"));
+    const inquary = await db.query("SELECT * FROM inquarys WHERE id = $1", [
+      id,
+    ]);
+    if (inquary.rows.length === 0) {
+      return next(errorHandler(404, "inquary not found"));
     }
-    res.status(200).json({ message: "User deleted successfully" });
+
+    await db.query("DELETE FROM inquarys WHERE id = $1", [id]);
+    res.status(200).json({ message: "inquarys deleted successfully" });
   } catch (error) {
     next(error);
   }
@@ -77,7 +72,7 @@ export const deleteInquiry = async (req, res, next) => {
 export const getTrainingsAndServices = async (req, res, next) => {
   try {
     const [courses, services] = await Promise.all([
-      TrainingModel.find({}, "title"), 
+      TrainingModel.find({}, "title"),
       ServiceModel.find({}, "title"),
     ]);
 

@@ -74,10 +74,10 @@ export const ContextProvider = ({ children }) => {
         if (!res.ok) {
           console.error(data.message || "Failed to fetch Review.");
         } else {
-          setReviews(data.review);
+          setReviews(data.reviews);
         }
       } catch (error) {
-        console.error("Error fetching posts:", error);
+        console.error("Error fetching reviews:", error);
       }
     };
 
@@ -106,14 +106,13 @@ export const ContextProvider = ({ children }) => {
       try {
         const res = await fetch(`api/backend7/get-services`);
         const data = await res.json();
-        console.log(data);
         if (!res.ok) {
-          console.error("Failed to fetch users.");
+          console.error("Failed to fetch services.");
         } else {
           setServices(data.services);
         }
       } catch (error) {
-        console.error("Error fetching users:", error);
+        console.error("Error fetching services:", error);
       }
     };
 
@@ -122,7 +121,7 @@ export const ContextProvider = ({ children }) => {
 
   return (
     <LoaderContext.Provider value={{ loading, setLoading }}>
-      <ServiceContext.Provider value={{ services,setServices }}>
+      <ServiceContext.Provider value={{ services, setServices }}>
         <BlogContext.Provider value={{ blogs, setBlogs, setLoading }}>
           <RevivewContext.Provider value={{ reviews, setReviews, setLoading }}>
             <FaqContext.Provider value={{ faqs, setFaqs, setLoading }}>

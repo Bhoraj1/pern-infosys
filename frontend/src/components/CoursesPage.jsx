@@ -9,7 +9,6 @@ export default function CoursesPage() {
 
   const isCoursePage = location.pathname === "/courses";
   useEffect(() => {
-    // Function to fetch courses data from the backend
     const fetchCourses = async () => {
       try {
         const response = await fetch("/api/backend6/getTrainings");
@@ -48,6 +47,10 @@ export default function CoursesPage() {
       console.log(error);
     }
   };
+
+  const handleCourseClick = (course) => {
+    navigate(`/course/${course.id}`, { state: { course } });
+  };
   return (
     <>
       <div
@@ -58,21 +61,24 @@ export default function CoursesPage() {
         {courses.map((course) => (
           <div
             className="w-60 bg-white rounded-xl shadow-lg relative transition-all duration-500 hover:scale-[1.07]"
-            key={course._id}
+            key={course.id}
           >
             <div className="absolute top-2 right-2 bg-red-600 text-white text-sm px-2 py-1 rounded-lg z-20 ">
-              {course.courseDuration}
+              {course.course_duration}
             </div>
-            <a href={`/course/${course._id}`}>
+            <a onClick={() => handleCourseClick(course)}>
               <img className="rounded-t-xl " src={course.image} />
             </a>
             <div className="p-5">
-              <a href={`/course/${course._id}`}>
+              <a onClick={() => handleCourseClick(course)}>
                 <h5 className="mb-1 text-2xl font-bold tracking-tight text-gray-900  ">
                   {course.title}
                 </h5>
               </a>
-              <p className="font-normal text-gray-700 dark:text-gray-400 relative line-clamp-2">
+              <p
+                onClick={() => handleCourseClick(course)}
+                className="font-normal text-gray-700 dark:text-gray-400 relative line-clamp-2"
+              >
                 {course.description}
               </p>
             </div>

@@ -1,19 +1,12 @@
 import multer from "multer";
-import TrainingModel from "../models/newTraining.model.js";
 import { errorHandler } from "../utils/error.js";
 import cloudinary from "../helper/cloudniaryConfig.js";
+import { db } from "../config/db.connect.js";
 
-//image storage path
-const imgconfig = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "./uploads/training");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
+// Use memory storage instead of disk storage
+const storage = multer.memoryStorage();
 
-//image filter
+// Image filter (check if file is an image)
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image")) {
     cb(null, true);
@@ -22,9 +15,9 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-//image upload
+// Initialize multer with memory storage
 export const upload = multer({
-  storage: imgconfig,
+  storage: storage,
   fileFilter: fileFilter,
 });
 
@@ -34,48 +27,62 @@ export const AddTraining = async (req, res, next) => {
   const {
     title,
     description,
-    courseDuration,
-    timeSlot,
-    totalAmount,
-    instructorName,
-    instructorBio,
+    course_duration,
+    time_slot,
+    total_amount,
+    instructor_name,
+    instructor_bio,
     syllabus,
   } = req.body;
   if (
     !title ||
     !description ||
-    !courseDuration ||
-    !timeSlot ||
-    !totalAmount ||
-    !instructorName ||
-    !instructorBio ||
+    !course_duration ||
+    !time_slot ||
+    !total_amount ||
+    !instructor_name ||
+    !instructor_bio ||
     !syllabus
   ) {
     return next(errorHandler(400, "All fields are required"));
   }
 
-  const upload = await cloudinary.v2.uploader.upload(req.file.path, {
-    folder: "trainings",
-    use_filename: true,
-  });
-  const newTraining = new TrainingModel({
-    title,
-    image: upload.secure_url,
-    description,
-    courseDuration,
-    timeSlot,
-    totalAmount,
-    instructorName,
-    instructorBio,
-    syllabus,
-    createdAt: new Date(),
-  });
   try {
-    await newTraining.save();
-    res.status(201).json({
-      message: "Training added successfully",
-      newTraining,
-    });
+    cloudinary.v2.uploader
+      .upload_stream({ folder: "trainings" }, async (error, result) => {
+        if (error) {
+          return next(
+            errorHandler(500, "Failed to upload image to Cloudinary")
+          );
+        }
+        const query = `
+        INSERT INTO trainings (title,description,course_duration,time_slot,  total_amount, instructor_name,instructor_bio,syllabus,image)
+        VALUES ($1, $2, $3, $4,$5,$6,$7,$8,$9)
+        RETURNING *;
+      `;
+        const values = [
+          title,
+          description,
+          course_duration,
+          time_slot,
+          total_amount,
+          instructor_name,
+          instructor_bio,
+          syllabus,
+          result.secure_url,
+        ];
+
+        try {
+          const { rows } = await db.query(query, values);
+          res.status(201).json({
+            message: "training added successfully",
+            training: rows[0],
+          });
+        } catch (dbError) {
+          return next(errorHandler(500, "Error saving training to database"));
+        }
+      })
+      .end(req.file.buffer);
   } catch (error) {
     next(error);
   }
@@ -83,13 +90,26 @@ export const AddTraining = async (req, res, next) => {
 
 export const getTrainings = async (req, res, next) => {
   try {
-    const startIndex = parseInt(req.query.startIndex) || 0;
-    const limit = parseInt(req.query.limit) || 8;
-    const trainings = await TrainingModel.find({})
-      .sort({ createdAt: -1 })
-      .skip(startIndex)
-      .limit(limit);
-    res.status(200).json({ trainings });
+    if (req.params.id) {
+      const result = await db.query("SELECT * FROM trainings WHERE id = $1", [
+        req.params.id,
+      ]);
+      const training = result.rows[0];
+      if (!training) {
+        return res.status(404).json({ message: "training not found" });
+      }
+      return res.status(200).json(team);
+    } else {
+      const result = await db.query("SELECT * FROM trainings");
+      const trainings = result.rows;
+      if (trainings.length === 0) {
+        return next(errorHandler(404, "trainings not found"));
+      }
+      res.status(200).json({
+        message: "trainings retrieved successfully!",
+        trainings,
+      });
+    }
   } catch (error) {
     next(error);
   }
@@ -109,20 +129,6 @@ export const deleteTraining = async (req, res, next) => {
   try {
     await TrainingModel.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "Training deleted successfully" });
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const getTrainingById = async (req, res, next) => {
-  // console.log("Received valid id:", req.params.id);
-  try {
-    const training = await TrainingModel.findById(req.params.id);
-
-    if (!training) {
-      return next(errorHandler(404, "Training not found"));
-    }
-    res.status(200).json({ training });
   } catch (error) {
     next(error);
   }

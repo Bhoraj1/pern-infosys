@@ -14,11 +14,11 @@ export default function TeamForm() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    phoneNumber: "",
+    phonenumber: "",
     department: "",
     bio: "",
     description: "",
-    socialMedia: {
+    socialmedia: {
       linkedin: "",
       github: "",
       twitter: "",
@@ -37,11 +37,11 @@ export default function TeamForm() {
             ...prev,
             name: data.name,
             email: data.email,
-            phoneNumber: data.phoneNumber,
+            phonenumber: data.phonenumber,
             department: data.department,
             bio: data.bio,
             description: data.description,
-            socialMedia: data.socialMedia,
+            socialmedia: data.socialmedia,
             image: data.image,
           }));
         })
@@ -51,19 +51,16 @@ export default function TeamForm() {
 
   const handleInputChange = (e) => {
     if (e.target.type === "file") {
-      // Update the file
       setFormData({ ...formData, image: e.target.files[0] });
-    } else if (e.target.name.startsWith("socialMedia")) {
-      // Update the specific social media field
+    } else if (e.target.name.startsWith("socialmedia")) {
       setFormData({
         ...formData,
-        socialMedia: {
-          ...formData.socialMedia,
+        socialmedia: {
+          ...formData.socialmedia,
           [e.target.name.split(".")[1]]: e.target.value.trim(),
         },
       });
     } else {
-      // For other fields (name, department, bio, description)
       setFormData({ ...formData, [e.target.id]: e.target.value });
     }
   };
@@ -73,11 +70,11 @@ export default function TeamForm() {
     const {
       name,
       email,
-      phoneNumber,
+      phonenumber,
       department,
       bio,
       description,
-      socialMedia,
+      socialmedia,
       image,
     } = formData;
 
@@ -86,10 +83,10 @@ export default function TeamForm() {
       !name ||
       !department ||
       !email ||
-      !phoneNumber ||
+      !phonenumber ||
       !bio ||
       !description ||
-      !socialMedia ||
+      !socialmedia ||
       !image
     ) {
       toast.error("All fields are required");
@@ -100,10 +97,10 @@ export default function TeamForm() {
     formDataToSend.append("name", name);
     formDataToSend.append("department", department);
     formDataToSend.append("email", email);
-    formDataToSend.append("phoneNumber", phoneNumber);
+    formDataToSend.append("phonenumber", phonenumber);
     formDataToSend.append("bio", bio);
     formDataToSend.append("description", description);
-    formDataToSend.append("socialMedia", JSON.stringify(socialMedia));
+    formDataToSend.append("socialmedia", JSON.stringify(socialmedia));
     formDataToSend.append("image", image);
 
     try {
@@ -132,11 +129,8 @@ export default function TeamForm() {
         );
       }
       setApiUpdated((prev) => ({ ...prev, teams: !prev.teams }));
-      if (teamId) {
-        navigate(`/dashboard?tab=team-dash`);
-      } else {
-        return null;
-      }
+
+      navigate(`/dashboard?tab=team-dash`);
     } catch (error) {
       setLoading(false);
       toast.error("Something went wrong!");
@@ -233,10 +227,10 @@ export default function TeamForm() {
             </label>
             <input
               type="number"
-              id="phoneNumber"
-              name="phoneNumber"
+              id="phonenumber"
+              name="phonenumber"
               onChange={handleInputChange}
-              value={formData.phoneNumber}
+              value={formData.phonenumber}
               placeholder="Enter a number"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               required
@@ -294,9 +288,9 @@ export default function TeamForm() {
             <input
               type="text"
               id="linkedin"
-              name="socialMedia.linkedin"
+              name="socialmedia.linkedin"
               onChange={handleInputChange}
-              value={formData.socialMedia.linkedin}
+              value={formData.socialmedia.linkedin}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="LinkedIn URL"
             />
@@ -312,9 +306,9 @@ export default function TeamForm() {
             <input
               type="text"
               id="github"
-              name="socialMedia.github"
+              name="socialmedia.github"
               onChange={handleInputChange}
-              value={formData.socialMedia.github}
+              value={formData.socialmedia.github}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="GitHub URL"
             />
@@ -330,9 +324,9 @@ export default function TeamForm() {
             <input
               type="text"
               id="twitter"
-              name="socialMedia.twitter"
+              name="socialmedia.twitter"
               onChange={handleInputChange}
-              value={formData.socialMedia.twitter}
+              value={formData.socialmedia.twitter}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="Twitter URL"
             />
@@ -348,9 +342,9 @@ export default function TeamForm() {
             <input
               type="text"
               id="facebook"
-              name="socialMedia.facebook"
+              name="socialmedia.facebook"
               onChange={handleInputChange}
-              value={formData.socialMedia.facebook}
+              value={formData.socialmedia.facebook}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="Facebook URL"
             />
@@ -371,7 +365,6 @@ export default function TeamForm() {
             name="image"
             onChange={handleInputChange}
             className="mt-1 block w-full text-sm text-gray-600 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            required
           />
         </div>
 

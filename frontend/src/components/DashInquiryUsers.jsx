@@ -14,18 +14,17 @@ export default function DashUsers() {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      if (adminDetails.isAdmin) {
+      if (adminDetails.user.isAdmin) {
         try {
           const res = await fetch(`/api/backend/getinquirys`);
           const data = await res.json();
-          console.log("API Working", data);
           if (!res.ok) {
             console.error(data.message || "Failed to fetch users.");
           } else {
-            setUsers(data.users);
+            setUsers(data.inquarys);
             setTotalUsers(data.totalUsers);
             setLstMonthUsers(data.lstMonthUsers);
-            if (data.users.length < 9) {
+            if (data.inquarys.length < 9) {
               setShowMore(false);
             }
           }
@@ -62,7 +61,7 @@ export default function DashUsers() {
       });
       // const data = await res.json();
       if (res.ok) {
-        setUsers((prev) => prev.filter((user) => user._id !== userIdTodelete));
+        setUsers((prev) => prev.filter((user) => user.id !== userIdTodelete));
         setShowModal(false);
       }
     } catch (error) {
@@ -106,34 +105,34 @@ export default function DashUsers() {
               {users.map((user) => {
                 return (
                   <>
-                  <Table.Body className="divide-y">
-                    <Table.Row
-                      key={user._id}
-                      className="bg-white hover:bg-gray-100"
-                    >
-                      <Table.Cell>
-                        {new Date(user.createdAt).toDateString()}
-                      </Table.Cell>
-                      <Table.Cell className="font-medium text-blue-950">
-                        {user.name}
-                      </Table.Cell>
-                      <Table.Cell>{user.email}</Table.Cell>
-                      <Table.Cell>{user.number}</Table.Cell>
-                      <Table.Cell>{user.services}</Table.Cell>
-                      <Table.Cell>{user.message}</Table.Cell>
-                      <Table.Cell>
-                        <span
-                          onClick={() => {
-                            setShowModal(true);
-                            setUserIdTodelete(user._id);
-                          }}
-                          className="font-medium text-red-600 hover:underline cursor-pointer"
-                        >
-                          Delete
-                        </span>
-                      </Table.Cell>
-                    </Table.Row>
-                  </Table.Body>
+                    <Table.Body className="divide-y">
+                      <Table.Row
+                        key={user.id}
+                        className="bg-white hover:bg-gray-100"
+                      >
+                        <Table.Cell>
+                          {new Date(user.createdAt).toDateString()}
+                        </Table.Cell>
+                        <Table.Cell className="font-medium text-blue-950">
+                          {user.name}
+                        </Table.Cell>
+                        <Table.Cell>{user.email}</Table.Cell>
+                        <Table.Cell>{user.number}</Table.Cell>
+                        <Table.Cell>{user.services}</Table.Cell>
+                        <Table.Cell>{user.message}</Table.Cell>
+                        <Table.Cell>
+                          <span
+                            onClick={() => {
+                              setShowModal(true);
+                              setUserIdTodelete(user.id);
+                            }}
+                            className="font-medium text-red-600 hover:underline cursor-pointer"
+                          >
+                            Delete
+                          </span>
+                        </Table.Cell>
+                      </Table.Row>
+                    </Table.Body>
                   </>
                 );
               })}

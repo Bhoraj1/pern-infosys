@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 // import CoursesPage from "./pages/CoursesPage";
-import CourseDetailPage from "./pages/CourseDetailPage.jsx";
 import RegistrationPage from "./pages/RegistrationPage.jsx";
 import IntroSection from "./components/IntroSection.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
@@ -30,6 +29,7 @@ import TeamForm from "./pages/Admin/Team/TeamForm.jsx";
 import ReviewForm from "./pages/Admin/revieww/ReviewForm.jsx";
 import BlogForm from "./pages/Admin/blog/BlogForm.jsx";
 import ServicesForm from "./pages/Admin/service/ServicesForm.jsx";
+import CourseTemplate from "./components/Courses/CourseTemplate.jsx";
 
 function App() {
   return (
@@ -54,7 +54,7 @@ function App() {
               }
             />
             <Route path="/courses" element={<CoursesPage />} />
-            <Route path="/course/:id" element={<CourseDetailPage />} />
+            <Route path="/course/:id" element={<CourseTemplate />} />
             <Route path="/service/:id" element={<ServiceDetails />} />
             <Route path="/AllServices" element={<AllServices />} />
 

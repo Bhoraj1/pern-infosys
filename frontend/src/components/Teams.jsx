@@ -30,16 +30,18 @@ export default function Teams() {
                   <h4 className="text-lg text-gray-700 font-semibold">
                     {item.name}
                   </h4>
-                  <p className="text-[#F79F35] font-semibold">{item.department}</p>
+                  <p className="text-[#F79F35] font-semibold">
+                    {item.department}
+                  </p>
                   <p className="text-gray-600 mt-2">{item.description}</p>
                   <div className="mt-3 flex gap-4 text-gray-400">
-                    <a target="_blank" href={item.socialMedia.twitter}>
+                    <a target="_blank" href={item.socialMedia?.twitter}>
                       <FaTwitter className="w-5 h-5 duration-150 hover:text-[#F79F35]" />
                     </a>
-                    <a target="_blank" href={item.socialMedia.github}>
+                    <a target="_blank" href={item.socialMedia?.github}>
                       <FaGithub className="w-5 h-5 duration-150 hover:text-[#F79F35]" />
                     </a>
-                    <a target="_blank" href={item.socialMedia.linkedin}>
+                    <a target="_blank" href={item.socialMedia?.linkedin}>
                       <FaLinkedin className="w-5 h-5 duration-150 hover:text-[#F79F35]" />
                     </a>
                   </div>

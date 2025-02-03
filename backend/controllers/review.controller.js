@@ -2,6 +2,7 @@ import multer from "multer";
 import { errorHandler } from "../utils/error.js";
 import cloudinary from "../helper/cloudniaryConfig.js";
 import ReviewModel from "../models/review.model.js";
+import { db } from "../config/db.connect.js";
 
 // Use memory storage instead of disk storage
 const storage = multer.memoryStorage();
@@ -22,56 +23,45 @@ export const upload = multer({
 });
 
 export const addReview = async (req, res, next) => {
-  // console.log(req.file)
-  // console.log(req.body);
-  // Extract data from the request body
   const { name, review, rating } = req.body;
 
-  // Validate required fields
   if (!name || !review || !rating) {
     return next(errorHandler(400, "All fields are required"));
   }
 
-  // Check if an image file was uploaded
   if (!req.file) {
     return next(errorHandler(400, "Image file is required"));
   }
 
-  // Upload image to Cloudinary directly from memory
   try {
-    const uploadResult = await cloudinary.v2.uploader.upload_stream(
-      { folder: "review" },
-      (error, result) => {
+    cloudinary.v2.uploader
+      .upload_stream({ folder: "reviews" }, async (error, result) => {
         if (error) {
           return next(
             errorHandler(500, "Failed to upload image to Cloudinary")
           );
         }
 
-        // Create new team document with Cloudinary image URL
-        const addTeam = new ReviewModel({
-          name,
-          review,
-          image: result.secure_url,
-          rating,
-          createdAt: new Date(),
-        });
+        // Insert the blog post data into the database
+        const query = `
+        INSERT INTO reviews (name, review, rating,image)
+        VALUES ($1, $2, $3, $4)
+        RETURNING *;
+      `;
+        const values = [name, review, rating, result.secure_url];
 
-        // Save the team document to the database
-        addTeam
-          .save()
-          .then(() => {
-            res.status(201).json({
-              message: "Review added successfully",
-              addTeam,
-            });
-          })
-          .catch(next);
-      }
-    );
-
-    // Pipe the image buffer to the upload stream
-    uploadResult.end(req.file.buffer);
+        try {
+          const { rows } = await db.query(query, values);
+          res.status(201).json({
+            message: "Review added successfully",
+            review: rows[0],
+          });
+        } catch (dbError) {
+          // console.error("Database Error:", dbError);
+          return next(errorHandler(500, "Error saving Review to database"));
+        }
+      })
+      .end(req.file.buffer);
   } catch (error) {
     next(error);
   }
@@ -80,22 +70,23 @@ export const addReview = async (req, res, next) => {
 export const getReview = async (req, res, next) => {
   try {
     if (req.params.id) {
-      const faq = await ReviewModel.findById(req.params.id);
-      if (!faq) {
-        return res.status(404).json({ message: "FAQ not found" });
+      const result = await db.query("SELECT * FROM reviews WHERE id = $1", [
+        req.params.id,
+      ]);
+      const review = result.rows[0];
+      if (!review) {
+        return res.status(404).json({ message: "review not found" });
       }
-      return res.status(200).json(faq);
+      return res.status(200).json(review);
     } else {
-      const review = await ReviewModel.find();
-      if (review.length === 0) {
-        return res.status(404).json({
-          message: "Review not found",
-        });
+      const result = await db.query("SELECT * FROM reviews");
+      const reviews = result.rows;
+      if (reviews.length === 0) {
+        return next(errorHandler(404, "reviews not found"));
       }
-
       res.status(200).json({
-        message: "Review retrieved successfully",
-        review,
+        message: "reviews retrieved successfully!",
+        reviews,
       });
     }
   } catch (error) {
@@ -110,12 +101,15 @@ export const deleteReview = async (req, res, next) => {
       errorHandler(403, "You are not authorized to delete this Review")
     );
   }
-  const Review = await ReviewModel.findById(req.params.id);
-  if (!Review) {
-    return next(errorHandler(404, "Review not found"));
-  }
   try {
-    await ReviewModel.findByIdAndDelete(req.params.id);
+    const { rows } = await db.query("SELECT * FROM reviews WHERE id = $1", [
+      req.params.id,
+    ]);
+    if (rows.length === 0) {
+      return next(errorHandler(404, "Review not found"));
+    }
+    await db.query("DELETE FROM reviews WHERE id = $1", [req.params.id]);
+
     res.status(200).json({ message: "Review deleted successfully" });
   } catch (error) {
     next(error);
@@ -129,37 +123,77 @@ export const updateReview = async (req, res, next) => {
     );
   }
   try {
-    let imageUrl = req.body.image;
-    if (req.file) {
-      const uploadResult = await new Promise((resolve, reject) => {
-        cloudinary.v2.uploader
-          .upload_stream({ folder: "team" }, (error, result) => {
-            if (error) {
-              reject(new Error("Failed to upload image to Cloudinary"));
-            } else {
-              resolve(result.secure_url);
-            }
-          })
-          .end(req.file.buffer);
-      });
-      imageUrl = uploadResult;
+    const { name, review, rating } = req.body;
+    const { reviewId } = req.params;
+
+    // Prepare fields to update
+    const fieldsToUpdate = [];
+    const values = [];
+
+    if (name) {
+      fieldsToUpdate.push("name");
+      values.push(name);
     }
 
-    const updateReview = await ReviewModel.findByIdAndUpdate(
-      req.params.reviewId,
-      {
-        $set: {
-          name: req.body.name,
-          review: req.body.answer,
-          image: imageUrl,
-          rating: req.body.rating,
-        },
-      },
-      { new: true }
-    );
+    if (review) {
+      fieldsToUpdate.push("review");
+      values.push(review);
+    }
+    if (rating) {
+      fieldsToUpdate.push("rating");
+      values.push(rating);
+    }
+
+    if (req.file) {
+      const result = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.v2.uploader.upload_stream(
+          { folder: "reviews" },
+          (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          }
+        );
+
+        // Pass the file buffer to the upload stream
+        uploadStream.end(req.file.buffer);
+      });
+      fieldsToUpdate.push("image");
+      values.push(result.secure_url);
+    }
+
+    // Check if there are fields to update
+    if (fieldsToUpdate.length === 0) {
+      return next(errorHandler(400, "No fields to update"));
+    }
+
+    // Add blogId as the last parameter for the WHERE clause
+    values.push(reviewId);
+
+    // Dynamically construct the SET clause
+    const setClause = fieldsToUpdate
+      .map((field, index) => `${field} = $${index + 1}`)
+      .join(", ");
+
+    // Execute the update query
+    const updateQuery = `
+          UPDATE reviews 
+          SET ${setClause} 
+          WHERE id = $${values.length} 
+          RETURNING id, name, review, rating,image
+        `;
+
+    const updatedReview = await db.query(updateQuery, values);
+
+    if (updatedReview.rowCount === 0) {
+      return next(errorHandler(404, "review not found"));
+    }
+
     res.status(200).json({
-      message: "Review updated successfully",
-      updateReview,
+      message: "Team updated successfully",
+      updatedReview: updatedReview.rows[0],
     });
   } catch (error) {
     next(error);

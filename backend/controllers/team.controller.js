@@ -1,7 +1,7 @@
 import multer from "multer";
 import { errorHandler } from "../utils/error.js";
 import cloudinary from "../helper/cloudniaryConfig.js";
-import TeamModel from "../models/team.model.js";
+import { db } from "../config/db.connect.js";
 
 // Use memory storage instead of disk storage
 const storage = multer.memoryStorage();
@@ -27,22 +27,22 @@ export const addTeam = async (req, res, next) => {
   const {
     name,
     email,
-    phoneNumber,
+    phonenumber,
     department,
     bio,
     description,
-    socialMedia,
+    socialmedia,
   } = req.body;
 
   // Validate required fields
   if (
     !name ||
     !email ||
-    !phoneNumber ||
+    !phonenumber ||
     !department ||
     !bio ||
     !description ||
-    !socialMedia
+    !socialmedia
   ) {
     return next(errorHandler(400, "All fields are required"));
   }
@@ -54,50 +54,49 @@ export const addTeam = async (req, res, next) => {
 
   let parsedSocialMedia;
   try {
-    parsedSocialMedia = JSON.parse(socialMedia);
+    parsedSocialMedia = JSON.parse(socialmedia);
   } catch (error) {
     return next(errorHandler(400, "Invalid social media format"));
   }
 
-  // Upload image to Cloudinary directly from memory
   try {
-    const uploadResult = await cloudinary.v2.uploader.upload_stream(
-      { folder: "team" },
-      (error, result) => {
+    cloudinary.v2.uploader
+      .upload_stream({ folder: "teams" }, async (error, result) => {
         if (error) {
           return next(
             errorHandler(500, "Failed to upload image to Cloudinary")
           );
         }
 
-        // Create new team document with Cloudinary image URL
-        const addTeam = new TeamModel({
+        // Insert the blog post data into the database
+        const query = `
+        INSERT INTO teams (name, email, phonenumber, department,bio,description,socialmedia,image)
+        VALUES ($1, $2, $3, $4,$5,$6,$7,$8)
+        RETURNING *;
+      `;
+        const values = [
           name,
           email,
-          phoneNumber,
-          image: result.secure_url,
+          phonenumber,
           department,
           bio,
           description,
-          socialMedia: parsedSocialMedia,
-          createdAt: new Date(),
-        });
+          JSON.stringify(parsedSocialMedia),
+          result.secure_url,
+        ];
 
-        // Save the team document to the database
-        addTeam
-          .save()
-          .then(() => {
-            res.status(201).json({
-              message: "Team member added successfully",
-              addTeam,
-            });
-          })
-          .catch(next);
-      }
-    );
-
-    // Pipe the image buffer to the upload stream
-    uploadResult.end(req.file.buffer);
+        try {
+          const { rows } = await db.query(query, values);
+          res.status(201).json({
+            message: "Team added successfully",
+            team: rows[0],
+          });
+        } catch (dbError) {
+          // console.error("Database Error:", dbError);
+          return next(errorHandler(500, "Error saving Team to database"));
+        }
+      })
+      .end(req.file.buffer);
   } catch (error) {
     next(error);
   }
@@ -106,21 +105,22 @@ export const addTeam = async (req, res, next) => {
 export const getTeams = async (req, res, next) => {
   try {
     if (req.params.id) {
-      const faq = await TeamModel.findById(req.params.id);
-      if (!faq) {
-        return res.status(404).json({ message: "Team not found" });
+      const result = await db.query("SELECT * FROM teams WHERE id = $1", [
+        req.params.id,
+      ]);
+      const team = result.rows[0];
+      if (!team) {
+        return res.status(404).json({ message: "team not found" });
       }
-      return res.status(200).json(faq);
+      return res.status(200).json(team);
     } else {
-      const teams = await TeamModel.find();
+      const result = await db.query("SELECT * FROM teams");
+      const teams = result.rows;
       if (teams.length === 0) {
-        return res.status(404).json({
-          message: "Teams not found",
-        });
+        return next(errorHandler(404, "teams not found"));
       }
-
       res.status(200).json({
-        message: "Teams retrieved successfully",
+        message: "Team retrieved successfully!",
         teams,
       });
     }
@@ -136,13 +136,21 @@ export const deleteTeamMember = async (req, res, next) => {
       errorHandler(403, "You are not authorized to delete this TeamMember")
     );
   }
-  const TeamMember = await TeamModel.findById(req.params.id);
-  if (!TeamMember) {
-    return next(errorHandler(404, "Team Member not found"));
+  if (!req.user.isAdmin) {
+    return next(
+      errorHandler(403, "You are not authorized to delete this service")
+    );
   }
   try {
-    await TeamModel.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "TeamMember deleted successfully" });
+    const { rows } = await db.query("SELECT * FROM teams WHERE id = $1", [
+      req.params.id,
+    ]);
+    if (rows.length === 0) {
+      return next(errorHandler(404, "team not found"));
+    }
+    await db.query("DELETE FROM teams WHERE id = $1", [req.params.id]);
+
+    res.status(200).json({ message: "team deleted successfully" });
   } catch (error) {
     next(error);
   }
@@ -154,51 +162,110 @@ export const updateTeamMember = async (req, res, next) => {
       errorHandler(403, "You are not authorized to Update this Team Member")
     );
   }
-  let parsedSocialMedia;
   try {
-    parsedSocialMedia = req.body.socialMedia
-      ? JSON.parse(req.body.socialMedia)
-      : undefined;
-  } catch (error) {
-    return next(new Error("Invalid JSON in socialMedia field"));
-  }
+    const {
+      name,
+      email,
+      phonenumber,
+      department,
+      bio,
+      description,
+      socialmedia,
+    } = req.body;
+    const { teamId } = req.params;
 
-  try {
-    let imageUrl = req.body.image;
-    if (req.file) {
-      const uploadResult = await new Promise((resolve, reject) => {
-        cloudinary.v2.uploader
-          .upload_stream({ folder: "team" }, (error, result) => {
-            if (error) {
-              reject(new Error("Failed to upload image to Cloudinary"));
-            } else {
-              resolve(result.secure_url);
-            }
-          })
-          .end(req.file.buffer);
-      });
-      imageUrl = uploadResult;
+    // Prepare fields to update
+    const fieldsToUpdate = [];
+    const values = [];
+
+    if (name) {
+      fieldsToUpdate.push("name");
+      values.push(name);
     }
 
-    const updateTeamMember = await TeamModel.findByIdAndUpdate(
-      req.params.teamId,
-      {
-        $set: {
-          name: req.body.name,
-          email: req.body.email,
-          phoneNumber: req.body.phoneNumber,
-          image: imageUrl,
-          department: req.body.department,
-          bio: req.body.bio,
-          description: req.body.description,
-          socialMedia: parsedSocialMedia,
-        },
-      },
-      { new: true }
-    );
+    if (email) {
+      fieldsToUpdate.push("email");
+      values.push(email);
+    }
+    if (phonenumber) {
+      fieldsToUpdate.push("phonenumber");
+      values.push(phonenumber);
+    }
+    if (department) {
+      fieldsToUpdate.push("department");
+      values.push(department);
+    }
+    if (bio) {
+      fieldsToUpdate.push("bio");
+      values.push(bio);
+    }
+
+    if (description) {
+      fieldsToUpdate.push("description");
+      values.push(description);
+    }
+    if (socialmedia) {
+      try {
+        const parsedSocialMedia = JSON.parse(socialmedia);
+        fieldsToUpdate.push("socialmedia");
+        values.push(JSON.stringify(parsedSocialMedia));
+      } catch (error) {
+        return next(errorHandler(400, "Invalid JSON in socialMedia field"));
+      }
+    }
+
+    // Handle image upload if a new file is provided
+    if (req.file) {
+      const result = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.v2.uploader.upload_stream(
+          { folder: "teams" },
+          (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          }
+        );
+
+        // Pass the file buffer to the upload stream
+        uploadStream.end(req.file.buffer);
+      });
+
+      fieldsToUpdate.push("image");
+      values.push(result.secure_url);
+    }
+
+    // Check if there are fields to update
+    if (fieldsToUpdate.length === 0) {
+      return next(errorHandler(400, "No fields to update"));
+    }
+
+    // Add blogId as the last parameter for the WHERE clause
+    values.push(teamId);
+
+    // Dynamically construct the SET clause
+    const setClause = fieldsToUpdate
+      .map((field, index) => `${field} = $${index + 1}`)
+      .join(", ");
+
+    // Execute the update query
+    const updateQuery = `
+        UPDATE teams 
+        SET ${setClause} 
+        WHERE id = $${values.length} 
+        RETURNING id, name, email, phonenumber, department,bio,description,socialmedia,image
+      `;
+
+    const updatedTeam = await db.query(updateQuery, values);
+
+    if (updatedTeam.rowCount === 0) {
+      return next(errorHandler(404, "Blog not found"));
+    }
+
     res.status(200).json({
       message: "Team updated successfully",
-      updateTeamMember,
+      updatedTeam: updatedTeam.rows[0],
     });
   } catch (error) {
     next(error);
