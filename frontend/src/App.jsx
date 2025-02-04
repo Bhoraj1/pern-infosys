@@ -2,7 +2,6 @@ import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-// import CoursesPage from "./pages/CoursesPage";
 import RegistrationPage from "./pages/RegistrationPage.jsx";
 import IntroSection from "./components/IntroSection.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
@@ -29,7 +28,8 @@ import ReviewForm from "./pages/Admin/revieww/ReviewForm.jsx";
 import BlogForm from "./pages/Admin/blog/BlogForm.jsx";
 import ServicesForm from "./pages/Admin/service/ServicesForm.jsx";
 import CourseTemplate from "./components/Courses/CourseTemplate.jsx";
-import AddTrainingForm from './pages/Admin/training/AddTrainingForm';
+import AddTrainingForm from "./pages/Admin/training/AddTrainingForm";
+import BlogDetails from "./pages/BlogDetails.jsx";
 
 function App() {
   return (
@@ -63,15 +63,18 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/verify-certificate" element={<VerifyCertificate />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:id" element={<BlogDetails />} />
 
             <Route element={<PrivateRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/update-training/:TrainingId" element={<AddTrainingForm />} />
+              <Route
+                path="/update-training/:TrainingId"
+                element={<AddTrainingForm />}
+              />
               <Route
                 path="/update-student/:studentId"
                 element={<UpdateStudent />}
               />
-
               <Route path="/update-faq/:faqId" element={<FAQForm />} />
               <Route path="/update-teamMember/:teamId" element={<TeamForm />} />
               <Route path="/update-review/:reviewId" element={<ReviewForm />} />

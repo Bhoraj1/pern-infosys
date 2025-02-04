@@ -1,9 +1,6 @@
 import React from "react";
 import { useBlog } from "../store/ContextAPI";
 
-const image =
-  "https://images.pexels.com/photos/826349/pexels-photo-826349.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1";
-
 export default function Blog() {
   const { blogs } = useBlog();
   return (
@@ -16,7 +13,10 @@ export default function Blog() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16 max-lg:max-w-3xl max-md:max-w-md mx-auto">
           {blogs.map((item, index) => (
-            <div className="bg-white cursor-pointer rounded-lg overflow-hidden shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] relative group">
+            <div
+              key={index}
+              className="bg-white cursor-pointer rounded-lg overflow-hidden shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] relative group"
+            >
               <img
                 src={item.image}
                 alt="Blog Post 1"

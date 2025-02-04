@@ -19,7 +19,7 @@ export default function IntroSection() {
         </p>
 
         <a
-          href="#"
+          href="/courses"
           className="bg-[#F79F35] text-gray-900 hover:text-[#221b44] py-2 px-6 rounded-full text-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg"
         >
           Get Started

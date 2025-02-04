@@ -49,7 +49,8 @@ export default function CoursesPage() {
   };
 
   const handleCourseClick = (course) => {
-    navigate(`/course/${course.id}`, { state: { course } });
+    const courseTitleSlug = course.title.replace(/\s+/g, "-").toLowerCase();
+    navigate(`/course/${courseTitleSlug}`, { state: { course } });
   };
   return (
     <>
@@ -60,24 +61,27 @@ export default function CoursesPage() {
       >
         {courses.map((course) => (
           <div
-            className="w-60 bg-white rounded-xl shadow-lg relative transition-all duration-500 hover:scale-[1.07]"
+            className="w-64 bg-white rounded-xl shadow-lg relative transition-all duration-500 hover:scale-[1.07] h-[340px]"
             key={course.id}
           >
             <div className="absolute top-2 right-2 bg-red-600 text-white text-sm px-2 py-1 rounded-lg z-20 ">
               {course.course_duration}
             </div>
             <a onClick={() => handleCourseClick(course)}>
-              <img className="rounded-t-xl " src={course.image} />
+              <img
+                className="rounded-t-xl h-40 w-full object-cover"
+                src={course.image}
+              />
             </a>
-            <div className="p-5">
+            <div className="p-3">
               <a onClick={() => handleCourseClick(course)}>
-                <h5 className="mb-1 text-2xl font-bold tracking-tight text-gray-900  ">
+                <h5 className="pb-4 text-xl flex flex-col  h-full">
                   {course.title}
                 </h5>
               </a>
               <p
                 onClick={() => handleCourseClick(course)}
-                className="font-normal text-gray-700 dark:text-gray-400 relative line-clamp-2"
+                className="font-normal p-1 text-gray-700 dark:text-gray-400 relative line-clamp-3"
               >
                 {course.description}
               </p>

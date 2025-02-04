@@ -35,7 +35,7 @@ export default function Review() {
         </div>
         <div className=" grid lg:grid-cols-3 md:grid-cols-3 sm:grid-cols-2 gap-x-6 gap-y-10 max-md:justify-center max-md:max-w-md mx-auto mt-16 ">
           {reviews.map((item, index) => (
-            <div className="w-full shadow-lg lg:p-8 p-4 rounded-md bg-white relative duration-700 hover:scale-[1.07]">
+            <div key={index} className="w-full shadow-lg lg:p-8 p-4 rounded-md bg-white relative duration-700 hover:scale-[1.07]">
               <div className="bg-[#F79F35] flex items-center justify-center w-12 h-12 max-lg:w-10 max-lg:h-10 rounded-full absolute -top-5 -right-5">
                 <FaQuoteRight className="text-white w-4 h-4" />
               </div>

@@ -6,7 +6,49 @@
 .nav-link.active {
   font-weight: bold;
   font-size: 17px;
+  color : #F79F35;
   border-bottom: 2px solid #F79F35;
 }
+
+.curriculum-content h1 {
+  font-size: 1rem; 
+  font-weight: bold;
+  margin-top: 1.5rem;
+}
+
+.curriculum-content h2 {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-top: 1.2rem;
+}
+
+.curriculum-content h3 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-top: 1rem;
+}
+
+.curriculum-content p,
+.curriculum-content ul,
+.curriculum-content ol {
+  font-size: 1rem; 
+  margin-left: 1.5rem;
+  color: #333;
+}
+
+.curriculum-content ol {
+  list-style-type: decimal;
+  margin-left: 2rem;
+}
+
+.curriculum-content ul {
+  list-style-type: disc;
+  margin-left: 2rem;
+}
+
+.curriculum-content > * {
+  margin-bottom: 0.8rem;
+}
+
 
 

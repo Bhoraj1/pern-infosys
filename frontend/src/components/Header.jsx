@@ -113,7 +113,7 @@ export default function Header() {
     <nav className="bg-white md:text-sm fixed top-0 left-0 w-full z-50 shadow-md border-b">
       <div className="gap-x-20 items-center max-w-screen-xl mx-auto px-4 md:flex md:px-8">
         <div className="flex items-center justify-between py-2 md:block">
-          <a href="javascript:void(0)">
+          <a href="/">
             <img src={logo} alt="logo" className="w-16 h-14" />
           </a>
           <div className="md:hidden">
@@ -231,7 +231,6 @@ export default function Header() {
                         <option key={index} value={item.title}>
                           {item.title}
                         </option>
-                        
                       ))}
                       <option>Web Development</option>
                     </select>
