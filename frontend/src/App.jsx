@@ -15,7 +15,6 @@ import PrivateRoute from "./components/PrivateRoute.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import AdminSignup from "./pages/Admin/AdminSignup.jsx";
 import ServiceDetails from "./pages/ServiceDetail.jsx";
-import UpdateTraining from "./pages/Admin/training/UpdateTraining.jsx";
 import UpdateStudent from "./pages/Admin/students/UpdateStudent.jsx";
 import FAQ from "./components/FAQ.jsx";
 import Facts from "./components/Facts.jsx";
@@ -30,6 +29,7 @@ import ReviewForm from "./pages/Admin/revieww/ReviewForm.jsx";
 import BlogForm from "./pages/Admin/blog/BlogForm.jsx";
 import ServicesForm from "./pages/Admin/service/ServicesForm.jsx";
 import CourseTemplate from "./components/Courses/CourseTemplate.jsx";
+import AddTrainingForm from './pages/Admin/training/AddTrainingForm';
 
 function App() {
   return (
@@ -66,7 +66,7 @@ function App() {
 
             <Route element={<PrivateRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/update-training/:id" element={<UpdateTraining />} />
+              <Route path="/update-training/:TrainingId" element={<AddTrainingForm />} />
               <Route
                 path="/update-student/:studentId"
                 element={<UpdateStudent />}

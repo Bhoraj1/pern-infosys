@@ -53,7 +53,7 @@ export default function TrainingDash() {
         console.log("Error deleting training");
       } else {
         setTraining((prev) =>
-          prev.filter((training) => training._id !== deleteTrainingId)
+          prev.filter((training) => training.id !== deleteTrainingId)
         );
         setShowModal(false);
       }
@@ -64,7 +64,7 @@ export default function TrainingDash() {
 
   return (
     <div className="table-auto mt-7 overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300">
-      {adminDetails.isAdmin && trainings.length > 0 ? (
+      {adminDetails.user.isAdmin && trainings.length > 0 ? (
         <>
           <h1 className="flex justify-center items-center text-2xl font-semibold mb-4">
             Course Management
@@ -81,16 +81,16 @@ export default function TrainingDash() {
             </Table.Head>
             <Table.Body>
               {trainings.map((course) => (
-                <Table.Row key={course._id}>
+                <Table.Row key={course.id}>
                   <Table.Cell className="font-medium text-gray-950">
                     {course.title}
                   </Table.Cell>
-                  <Table.Cell>{course.instructorName}</Table.Cell>
-                  <Table.Cell>{course.courseDuration}</Table.Cell>
-                  <Table.Cell>NPR.{course.totalAmount}</Table.Cell>
+                  <Table.Cell>{course.instructor_name}</Table.Cell>
+                  <Table.Cell>{course.course_duration}</Table.Cell>
+                  <Table.Cell>NPR.{course.total_amount}</Table.Cell>
                   <Table.Cell>
                     <Link
-                      to={`/update-training/${course._id}`}
+                      to={`/update-training/${course.id}`}
                       className="cursor-pointer text-blue-500 hover:underline"
                     >
                       Edit
@@ -100,7 +100,7 @@ export default function TrainingDash() {
                     <span
                       onClick={() => {
                         setShowModal(true);
-                        setDeleteTrainingId(course._id);
+                        setDeleteTrainingId(course.id);
                       }}
                       className="font-medium text-red-500 hover:underline cursor-pointer"
                     >
@@ -128,10 +128,10 @@ export default function TrainingDash() {
           <Modal.Header>{selectedCourse.title}</Modal.Header>
           <Modal.Body>
             <p>
-              <strong>Instructor:</strong> {selectedCourse.instructorName}
+              <strong>Instructor:</strong> {selectedCourse.instructor_name}
             </p>
             <p>
-              <strong>Bio:</strong> {selectedCourse.instructorBio}
+              <strong>Bio:</strong> {selectedCourse.instructor_bio}
             </p>
             <p>
               <strong>Description:</strong> {selectedCourse.description}
@@ -143,11 +143,11 @@ export default function TrainingDash() {
               <strong>Total Amount:</strong> NPR.{selectedCourse.totalAmount}
             </p>
             <h3 className="mt-4 font-semibold">Syllabus:</h3>
-            <ul>
-              {selectedCourse.syllabus.map((item, index) => (
-                <li key={index}>- {item}</li>
-              ))}
-            </ul>
+            <p className="p-1 max-w-2xl mx-auto w-full training-syllabus"
+              dangerouslySetInnerHTML={{
+                __html: selectedCourse && selectedCourse.syllabus,
+              }}
+            ></p>
           </Modal.Body>
           <Modal.Footer>
             <Button onClick={handleCloseModal}>Close</Button>

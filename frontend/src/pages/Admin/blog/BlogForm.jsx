@@ -39,10 +39,8 @@ export default function BlogForm() {
 
   const handleInputChange = (e) => {
     if (e.target.type === "file") {
-      // Update the file
       setFormData({ ...formData, image: e.target.files[0] });
     } else {
-      // For other fields (name, department, bio, description)
       setFormData({ ...formData, [e.target.id]: e.target.value });
     }
   };
@@ -64,7 +62,6 @@ export default function BlogForm() {
       return;
     }
 
-    // Create FormData for uploading to backend
     const blogData = new FormData();
     blogData.append("name", formData.name);
     blogData.append("title", formData.title);

@@ -14,17 +14,17 @@ export default function AdmissionForm() {
   const [formData, setFormData] = useState({
     name: "",
     dob: "",
-    contactNumber: "",
+    contact_number: "",
     email: "",
     address: "",
-    timeSlot: "",
-    courseType: "",
-    courseDuration: "",
-    totalAmount: "",
-    educationBackground: "",
-    parentName: "",
-    parentNumber: "",
-    parentRelationship: "",
+    time_slot: "",
+    course_type: "",
+    course_duration: "",
+    total_amount: "",
+    education_background: "",
+    parent_name: "",
+    parent_number: "",
+    parent_relationship: "",
   });
   const [trainings, setTrainings] = useState([]);
   const contentRef = useRef(null);
@@ -39,7 +39,6 @@ export default function AdmissionForm() {
     e.preventDefault();
     navigate("/dashboard?tab=admission-bill", { state: { formData } });
   };
-
   useEffect(() => {
     const fetchCourseTypes = async () => {
       try {
@@ -49,7 +48,6 @@ export default function AdmissionForm() {
           return;
         }
         const data = await res.json();
-        // console.log("Fetched course data:", data);
         setTrainings(data.trainings);
       } catch (err) {
         console.error("Error fetching course details:", err);
@@ -59,29 +57,25 @@ export default function AdmissionForm() {
   }, []);
   const handleCourseSelection = (e) => {
     const selectedCourseId = e.target.value;
-    // console.log("Selected course ID:", selectedCourseId);
-
     const selectedCourse = trainings.find(
-      (training) => training._id === selectedCourseId
+      (course) => course.id === Number(selectedCourseId)
     );
 
     if (selectedCourse) {
       setFormData({
         ...formData,
-        courseType: selectedCourse.title,
-        // selectedCourseId: selectedCourse._id,
-        timeSlot: selectedCourse.timeSlot,
-        courseDuration: selectedCourse.courseDuration,
-        totalAmount: selectedCourse.totalAmount,
+        course_type: selectedCourse.title,
+        time_slot: selectedCourse.time_slot,
+        course_duration: selectedCourse.course_duration,
+        total_amount: selectedCourse.total_amount,
       });
     } else {
       setFormData({
         ...formData,
-        courseType: "",
-        selectedCourseId: "",
-        timeSlot: "",
-        courseDuration: "",
-        totalAmount: "",
+        course_type: "",
+        time_slot: "",
+        course_duration: "",
+        total_amount: "",
       });
     }
   };
@@ -125,8 +119,8 @@ export default function AdmissionForm() {
               <div>
                 <Label htmlFor="contactNumber" value="Contact Number" />
                 <TextInput
-                  id="contactNumber"
-                  name="contactNumber"
+                  id="contact_number"
+                  name="contact_number"
                   type="tel"
                   placeholder="Enter contact number"
                   required
@@ -168,16 +162,16 @@ export default function AdmissionForm() {
                     {/* 1.Course types */}
                     <Label value="Course Type" />
                     <Select
-                      id="courseType"
-                      name="courseType"
-                      value={formData._id}
+                      id="course_type"
+                      name="course_type"
+                      x
                       required
                       onChange={handleCourseSelection}
                     >
-                      <option value=""> Select Course Type </option>
+                      <option> Select Course Type </option>
                       {trainings.length > 0 ? (
                         trainings.map((training) => (
-                          <option key={training._id} value={training._id}>
+                          <option key={training.id} value={training.id}>
                             {training.title}
                           </option>
                         ))
@@ -191,10 +185,10 @@ export default function AdmissionForm() {
                   <div>
                     <Label value="Preferred Time Slot" />
                     <TextInput
-                      id="timeSlot"
-                      name="timeSlot"
+                      id="time_slot"
+                      name="time_slot"
                       placeholder="Enter a time slot"
-                      value={formData.timeSlot}
+                      value={formData.time_slot}
                       required
                       onChange={handleInputChange}
                     />
@@ -204,10 +198,10 @@ export default function AdmissionForm() {
                   <div>
                     <Label value="Course Duration" />
                     <TextInput
-                      id="courseDuration"
-                      name="courseDuration"
+                      id="course_duration"
+                      name="course_duration"
                       placeholder="Enter course duration"
-                      value={formData.courseDuration}
+                      value={formData.course_duration}
                       required
                       onChange={handleInputChange}
                     />
@@ -216,10 +210,10 @@ export default function AdmissionForm() {
                   <div>
                     <Label value="Total Amount" />
                     <TextInput
-                      id="totalAmount"
-                      name=" totalAmount"
+                      id="total_amount"
+                      name=" total_amount"
                       placeholder=" Total Amount "
-                      value={formData.totalAmount}
+                      value={formData.total_amount}
                       required
                       onChange={handleInputChange}
                     />
@@ -232,8 +226,8 @@ export default function AdmissionForm() {
                 <div>
                   <Label value=" Education Background " />
                   <TextInput
-                    id="educationBackground"
-                    name="educationBackground"
+                    id="education_background"
+                    name="education_background"
                     placeholder="Enter school/college name"
                     required
                     onChange={handleInputChange}
@@ -248,8 +242,8 @@ export default function AdmissionForm() {
                   <div>
                     <Label value="Name" />
                     <TextInput
-                      id="parentName"
-                      name="parentName"
+                      id="parent_name"
+                      name="parent_name"
                       placeholder="Parent/Guardian Name"
                       required
                       onChange={handleInputChange}
@@ -259,8 +253,8 @@ export default function AdmissionForm() {
                   <div>
                     <Label value="Contact Number" />
                     <TextInput
-                      id="parentNumber"
-                      name="parentNumber"
+                      id="parent_number"
+                      name="parent_number"
                       placeholder="Parent/Guardian Contact"
                       required
                       onChange={handleInputChange}
@@ -269,8 +263,8 @@ export default function AdmissionForm() {
                   <div>
                     <Label value="Relationship" />
                     <TextInput
-                      id="parentRelationship"
-                      name="parentRelationship"
+                      id="parent_relationship"
+                      name="parent_relationship"
                       placeholder="e.g., Father, Mother"
                       required
                       onChange={handleInputChange}
@@ -284,7 +278,9 @@ export default function AdmissionForm() {
           {/* Submit Button */}
           <div className="flex justify-between print:hidden">
             <div className="mt-4 ">
-              <Button type="submit" className="bg-blue-950">Register Student</Button>
+              <Button type="submit" className="bg-blue-950">
+                Register Student
+              </Button>
             </div>
             {/*<div className="mt-4">
                Use react-to-print for printing 

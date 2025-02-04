@@ -1,9 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, FileInput, Label, Textarea, TextInput } from "flowbite-react";
 import toast from "react-hot-toast";
 import ReactQuill from "react-quill";
+import useLoading from "../../../hooks/useLoading";
+import SpinnerComponent from "../../../hooks/SpinnerComponent";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function AddTrainingForm() {
+  const { setLoading, loading } = useLoading();
+  const navigate = useNavigate();
+  const { TrainingId } = useParams();
   const [formData, setFormData] = useState({
     title: "",
     image: "",
@@ -15,6 +21,27 @@ export default function AddTrainingForm() {
     instructor_bio: "",
     syllabus: "",
   });
+
+  useEffect(() => {
+    if (TrainingId) {
+      fetch(`/api/backend6/getTrainings/${TrainingId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          setFormData({
+            title: data.title,
+            description: data.description,
+            course_duration: data.course_duration,
+            time_slot: data.time_slot,
+            total_amount: data.total_amount,
+            instructor_name: data.instructor_name,
+            instructor_bio: data.instructor_bio,
+            syllabus: data.syllabus,
+          });
+        })
+        .catch((err) => console.log(err));
+    }
+  }, [TrainingId]);
 
   const handleChange = (e) => {
     if (e.target.type === "file") {
@@ -36,31 +63,53 @@ export default function AddTrainingForm() {
     formDataObj.append("description", formData.description);
     formDataObj.append("course_duration", formData.course_duration);
     formDataObj.append("time_slot", formData.time_slot);
-    formDataObj.append("total_amount", parseFloat(formData.total_amount));
+    formDataObj.append("total_amount", formData.total_amount);
     formDataObj.append("instructor_name", formData.instructor_name);
     formDataObj.append("instructor_bio", formData.instructor_bio);
     formDataObj.append("syllabus", formData.syllabus);
 
     try {
-      const res = await fetch("/api/backend6/training", {
-        method: "POST",
-        body: formDataObj,
-      });
+      setLoading(true);
+      let res;
+      if (TrainingId) {
+        res = await fetch(`/api/backend6/update/${TrainingId}`, {
+          method: "PUT",
+          body: formDataObj,
+        });
+      } else {
+        res = await fetch("/api/backend6/training", {
+          method: "POST",
+          body: formDataObj,
+        });
+      }
       if (!res.ok) {
-        toast.error("Failed to add training");
+        setLoading(false);
+        toast.error(
+          TrainingId ? "Training Update Failed" : "Training Add Failed"
+        );
         return;
       } else {
-        toast.success("Training added successfully");
+        setLoading(false);
+        toast.success(
+          TrainingId
+            ? "Training Update Successfully"
+            : "Training Added successfully Add Failed"
+        );
+        navigate("/dashboard?tab=all-training");
       }
     } catch (error) {
+      setLoading(false);
       console.log(error);
       toast.error("Failed to add training");
     }
   };
 
   return (
-    <div className="container mx-auto mt-5">
-      <h1 className="text-3xl font-bold text-center mb-6">Add New Training</h1>
+    <div className={`container mx-auto mt-5 ${TrainingId ? "pt-16" : "pt-0"}`}>
+      <h1 className="text-3xl font-bold text-center mb-6">
+        {TrainingId ? "Update Training" : "Add Training"}
+      </h1>
+      {loading && <SpinnerComponent />}
       <form
         onSubmit={handleSubmit}
         className="space-y-5 mx-7"
@@ -79,6 +128,7 @@ export default function AddTrainingForm() {
               required
               placeholder="Enter training title"
               className="mt-1 block w-full"
+              value={formData.title}
             />
           </div>
           <div className="mb-4">
@@ -89,7 +139,7 @@ export default function AddTrainingForm() {
               className="mt-1"
               accept="image/*"
               onChange={handleChange}
-              required
+              required={!TrainingId}
             />
           </div>
         </div>
@@ -105,6 +155,7 @@ export default function AddTrainingForm() {
             placeholder="Enter training description"
             rows={4}
             className="mt-1 block w-full p-2"
+            value={formData.description}
           />
         </div>
 
@@ -120,6 +171,7 @@ export default function AddTrainingForm() {
               required
               placeholder="Enter training duration"
               className="mt-1 block w-full"
+              value={formData.course_duration}
             />
           </div>
           <div>
@@ -132,6 +184,7 @@ export default function AddTrainingForm() {
               required
               placeholder="Enter a time slot"
               className="mt-1 block w-full"
+              value={formData.time_slot}
             />
           </div>
         </div>
@@ -147,6 +200,7 @@ export default function AddTrainingForm() {
             required
             placeholder="Enter training fees"
             className="mt-1 block w-full"
+            value={formData.total_amount}
           />
         </div>
 
@@ -161,6 +215,7 @@ export default function AddTrainingForm() {
             required
             placeholder="Enter instructor's name"
             className="mt-1 block w-full"
+            value={formData.instructor_name}
           />
         </div>
 
@@ -175,6 +230,7 @@ export default function AddTrainingForm() {
             placeholder="Enter instructor bio"
             rows={4}
             className="mt-1 block w-full"
+            value={formData.instructor_bio}
           />
         </div>
 
@@ -187,13 +243,14 @@ export default function AddTrainingForm() {
             name="syllabus"
             required
             onChange={handleSyllabusChange}
+            value={formData.syllabus}
           />
         </div>
 
         {/* Submit Button */}
-        <div className="text-center">
+        <div className="text-center ">
           <Button type="submit" className="mb-4 bg-blue-950">
-            Add Training
+            {TrainingId ? "Update Training" : "Post Training"}
           </Button>
         </div>
       </form>

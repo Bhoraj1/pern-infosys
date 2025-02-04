@@ -16,12 +16,14 @@
   }
 }
 
-/* .post-content p{
+.training-syllabus p{
  margin-bottom:0.5rem;
 }
-.post-content h1{
+.training-content h1{
   font-size:1.5rem;
-  font-weight:600;
-  font-family:sans-serif;
-  margin:1.5rem 0;
-} */
+  margin:1rem 0;
+} 
+.training-syllabus h2{
+  font-size:1.4rem;
+  margin:1rem 0;
+}

@@ -3,10 +3,9 @@ import multer from "multer";
 import cloudinary from "../helper/cloudniaryConfig.js";
 import { db } from "../config/db.connect.js";
 
-// Use memory storage instead of disk storage
 const storage = multer.memoryStorage();
 
-// Image filter (check if file is an image)
+
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image")) {
     cb(null, true);
@@ -15,28 +14,23 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Initialize multer with memory storage
 export const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
 });
 
 export const services = async (req, res, next) => {
-  // console.log(req.file);
-  // console.log(req.body);
+
   const { title, description } = req.body;
 
-  // Validate required fields
   if (!title || !description) {
     return next(errorHandler(400, "All fields are required"));
   }
 
-  // Check if an image file was uploaded
   if (!req.file) {
     return next(errorHandler(400, "Image file is required"));
   }
   try {
-    // Upload the image to Cloudinary and handle the result
     cloudinary.v2.uploader
       .upload_stream({ folder: "services" }, async (error, image) => {
         if (error) {
@@ -123,7 +117,6 @@ export const updateService = async (req, res, next) => {
     const { title, description } = req.body;
     const { serviceId } = req.params;
 
-    // Prepare fields to update
     const fieldsToUpdate = [];
     const values = [];
 
@@ -137,7 +130,7 @@ export const updateService = async (req, res, next) => {
       values.push(description);
     }
 
-    // Handle image upload if a new file is provided
+
     if (req.file) {
       const result = await new Promise((resolve, reject) => {
         const uploadStream = cloudinary.v2.uploader.upload_stream(
@@ -158,20 +151,15 @@ export const updateService = async (req, res, next) => {
       values.push(result.secure_url);
     }
 
-    // Check if there are fields to update
     if (fieldsToUpdate.length === 0) {
       return next(errorHandler(400, "No fields to update"));
     }
 
-    // Add serviceId as the last parameter for the WHERE clause
     values.push(serviceId);
 
-    // Dynamically construct the SET clause
     const setClause = fieldsToUpdate
       .map((field, index) => `${field} = $${index + 1}`)
       .join(", ");
-
-    // Execute the update query
     const updateQuery = `
       UPDATE services 
       SET ${setClause}

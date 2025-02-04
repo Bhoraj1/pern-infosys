@@ -136,11 +136,6 @@ export const deleteTeamMember = async (req, res, next) => {
       errorHandler(403, "You are not authorized to delete this TeamMember")
     );
   }
-  if (!req.user.isAdmin) {
-    return next(
-      errorHandler(403, "You are not authorized to delete this service")
-    );
-  }
   try {
     const { rows } = await db.query("SELECT * FROM teams WHERE id = $1", [
       req.params.id,

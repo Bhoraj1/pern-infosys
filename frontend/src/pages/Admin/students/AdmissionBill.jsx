@@ -1,41 +1,46 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Button, Label, TextInput, Card, Select } from "flowbite-react";
 import { useReactToPrint } from "react-to-print";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 export default function AdmissionBill() {
   const location = useLocation();
   const { formData } = location.state || {};
+  const navigate = useNavigate();
   useEffect(() => {
     // console.log("Received formData:", formData);
   }, [formData]);
   const [billingData, setBillingData] = useState({
-    studentName: formData?.name || "",
-    studentNumber: formData?.contactNumber || "",
-    totalAmount: formData?.totalAmount || "",
-    paymentMethod: "",
+    student_name: formData?.name || "",
+    student_number: formData?.contact_number || "",
+    payment_method: "",
     amount: "",
   });
   const [submitted, setSubmitted] = useState(false);
   const contentRef = useRef(null);
 
+  const handleNextClick = () => {
+    navigate("/dashboard?tab=student-dahsboard");
+  };
+
   const handleInputChange = (e) => {
     setBillingData({ ...billingData, [e.target.id]: e.target.value });
   };
 
-  const fullAmount = billingData.totalAmount;
-  const remainingAmount = fullAmount - parseFloat(billingData.amount);
+  const fullAmount = parseFloat(formData?.total_amount || 0);
+  const paidAmount = parseFloat(billingData.amount || 0);
+  const remainingAmount = fullAmount - paidAmount;
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
-    const billing = {
-      studentName: billingData.studentName,
-      studentNumber: billingData.studentNumber,
-      paymentMethod: billingData.paymentMethod,
-      amountPaid: parseFloat(billingData.amount) || 0,
-      remainingAmount: remainingAmount,
-      billingDate: new Date().toLocaleDateString(),
+    const updatedFormData = {
+      ...formData,
+      student_name: billingData.student_name,
+      student_number: billingData.student_number,
+      payment_method: billingData.payment_method,
+      amount_paid: billingData.amount,
+      remaining_amount: Math.max(remainingAmount, 0),
+      billing_date: new Date().toLocaleDateString(),
     };
     try {
       const res = await fetch("/api/backend4/student-admission", {
@@ -43,15 +48,13 @@ export default function AdmissionBill() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          formData,
-          billing,
-        }),
+        body: JSON.stringify(updatedFormData),
       });
 
       const data = await res.json();
       if (res.ok) {
         toast.success("Billing data saved successfully");
+        setSubmitted(true);
       } else {
         toast.error("Error saving billing data:", data);
         setSubmitted(false);
@@ -88,7 +91,7 @@ export default function AdmissionBill() {
                   id="studentName"
                   name="studentName"
                   type="text"
-                  value={billingData.studentName}
+                  value={billingData.student_name}
                   placeholder="Enter student name"
                   required
                   onChange={handleInputChange}
@@ -99,10 +102,10 @@ export default function AdmissionBill() {
               <div>
                 <Label value="Student Number" />
                 <TextInput
-                  id="studentNumber"
-                  name="studentNumber"
+                  id="student_number"
+                  name="student_number"
                   type="tel"
-                  value={billingData.studentNumber}
+                  value={billingData.student_number}
                   placeholder="Enter student number"
                   required
                   onChange={handleInputChange}
@@ -113,8 +116,8 @@ export default function AdmissionBill() {
               <div>
                 <Label htmlFor="paymentMethod" value="Method of Payment" />
                 <Select
-                  id="paymentMethod"
-                  name="paymentMethod"
+                  id="payment_method"
+                  name="payment_method"
                   required
                   onChange={handleInputChange}
                 >
@@ -148,9 +151,8 @@ export default function AdmissionBill() {
         ) : (
           <div
             ref={contentRef}
-            className="p-8 shadow-xl rounded-lg w-full max-w-lg mx-auto bg-white print:w-[250px] print:p-2 print:text-xs print:font-normal print:leading-tight print:mx-auto print:my-4 print:shadow-none"
+            className="p-8 rounded-lg w-full max-w-lg mx-auto bg-white print:w-[250px] print:p-2 print:text-xs print:font-normal print:leading-tight print:mx-auto print:my-4 print:shadow-none"
           >
-            {/* Display Submitted Billing Information */}
             <h2 className="text-xl font-bold mb-4 text-center">
               Next Infosys Pvt.Ltd Payment Bill
             </h2>
@@ -159,13 +161,13 @@ export default function AdmissionBill() {
                 <strong>Billing Date:</strong> {getCurrentDate()}
               </p>
               <p>
-                <strong>Student Name:</strong> {billingData.studentName}
+                <strong>Student Name:</strong> {billingData.student_name}
               </p>
               <p>
-                <strong>Student Number:</strong> {billingData.studentNumber}
+                <strong>Student Number:</strong> {billingData.student_number}
               </p>
               <p>
-                <strong>Method of Payment:</strong> {billingData.paymentMethod}
+                <strong>Method of Payment:</strong> {billingData.payment_method}
               </p>
               <p>
                 <strong>Amount Paid:</strong> NPR {billingData.amount}
@@ -190,13 +192,14 @@ export default function AdmissionBill() {
             </div>
 
             {/* Print Button */}
-            <div className="mt-6 text-center">
+            <div className="flex pt-7 text-center justify-between">
               <Button
                 className="bg-red-500 hover:bg-red-600 text-white print:hidden"
                 onClick={reactToPrintFn}
               >
                 Print Billing Details
               </Button>
+              <Button onClick={handleNextClick}>Next</Button>
             </div>
           </div>
         )}

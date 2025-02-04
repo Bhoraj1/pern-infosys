@@ -13,6 +13,11 @@ const router = express.Router();
 router.post("/training", upload.single("image"), verifyToken, AddTraining);
 router.get("/getTrainings/:id?", getTrainings);
 router.delete("/deleteTraining/:id", verifyToken, deleteTraining);
-router.put("/update/:id", verifyToken, updateTraining);
+router.put(
+  "/update/:trainingId",
+  upload.single("image"),
+  verifyToken,
+  updateTraining
+);
 
 export default router;

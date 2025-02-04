@@ -4,7 +4,6 @@ import { useSelector } from "react-redux";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { AiOutlineSearch } from "react-icons/ai";
 import { Link } from "react-router-dom";
-// import { FiSearch } from "react-icons/fi";
 
 export default function StudentManagementDashboard() {
   const { adminDetails } = useSelector((state) => state.admin);
@@ -12,27 +11,28 @@ export default function StudentManagementDashboard() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [totalAdmissions, setTotalAdmissions] = useState(0);
   const [lstMonthAdmissions, setLstMonthAdmissions] = useState(0);
-  // const [showMore, setShowMore] = useState(true);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [AdmissionuserIdToDelete, setAdmissionuserIdToDelete] = useState(null);
 
+  const handleViewDetails = (admission) => {
+    setSelectedUser(admission);
+    setShowDetailsModal(true);
+  };
+
   useEffect(() => {
     const fetchAllAdmissions = async () => {
-      if (adminDetails.isAdmin) {
+      if (adminDetails.user.isAdmin) {
         try {
           const res = await fetch(`/api/backend4/getStudentAdmission`);
           const data = await res.json();
-          // console.log(data);
+          console.log(data);
           if (!res.ok) {
             console.error(data.message || "Failed to fetch users.");
           } else {
             setAdmissions(data.admissions);
             setTotalAdmissions(data.totalAdmissions);
             setLstMonthAdmissions(data.lstMonthAdmissions);
-            // if (data.admissions.length < 9) {
-            //   setShowMore(false);
-            // }
           }
         } catch (error) {
           console.error("Error fetching users:", error);
@@ -42,20 +42,6 @@ export default function StudentManagementDashboard() {
     fetchAllAdmissions();
   }, []);
 
-  const handleViewDetails = async (id) => {
-    try {
-      const res = await fetch(`/api/backend4/getStudentAdmission/${id}`);
-      const data = await res.json();
-      if (!res.ok) {
-        console.error(data.message || "Failed to fetch user details.");
-      } else {
-        setSelectedUser(data);
-        setShowDetailsModal(true);
-      }
-    } catch (error) {
-      console.error("Error fetching user details:", error);
-    }
-  };
   const handleDeleteUserAdmission = async () => {
     try {
       const res = await fetch(
@@ -66,7 +52,7 @@ export default function StudentManagementDashboard() {
       );
       if (res.ok) {
         setAdmissions((prev) =>
-          prev.filter((admission) => admission._id !== AdmissionuserIdToDelete)
+          prev.filter((admission) => admission.id !== AdmissionuserIdToDelete)
         );
         setShowDeleteModal(false);
       }
@@ -86,9 +72,6 @@ export default function StudentManagementDashboard() {
               placeholder="Search by name..."
               className="inline w-[200px] md:w-96 p-7"
             />
-            {/* <button className="">
-            <FiSearch size={24} />
-          </button> */}
           </div>
 
           <div className="flex  gap-7 justify-center mb-6">
@@ -125,33 +108,33 @@ export default function StudentManagementDashboard() {
           </Table.Head>
           <Table.Body className="divide-y">
             {admissions.map((admission) => (
-              <Table.Row key={admission._id}>
+              <Table.Row key={admission.id}>
                 <Table.Cell className="font-semibold text-black">
-                  {admission.courseType}
+                  {admission.course_type}
                 </Table.Cell>
                 <Table.Cell className="font-semibold text-black">
-                  {admission.name}
+                  {admission.student_name}
                 </Table.Cell>
                 <Table.Cell className="font-semibold text-black">
-                  {admission.contactNumber}
+                  {admission.contact_number}
                 </Table.Cell>
                 <Table.Cell>
                   <Button
-                    onClick={() => handleViewDetails(admission._id)}
+                    onClick={() => handleViewDetails(admission)}
                     color="blue"
                   >
                     View
                   </Button>
                 </Table.Cell>
                 <Table.Cell className=" text-black">
-                  NPR. {admission.totalAmount}
+                  NPR. {admission.total_amount}
                 </Table.Cell>
                 <Table.Cell className=" text-black">
-                  NPR. {admission.billing?.amountPaid}
+                  NPR. {admission.amount_paid}
                 </Table.Cell>
                 <Table.Cell>
                   <Link
-                    to={`/update-student/${admission._id}`}
+                    to={`/update-student/${admission.id}`}
                     className="font-medium text-teal-500 hover:underline cursor-pointer"
                   >
                     Edit
@@ -161,7 +144,7 @@ export default function StudentManagementDashboard() {
                   <span
                     onClick={() => {
                       setShowDeleteModal(true);
-                      setAdmissionuserIdToDelete(admission._id);
+                      setAdmissionuserIdToDelete(admission.id);
                     }}
                     className="font-medium text-red-600 hover:underline cursor-pointer"
                   >
@@ -192,8 +175,10 @@ export default function StudentManagementDashboard() {
               <div className="space-y-6">
                 {/* Header Section */}
                 <div className="text-center">
-                  <h2 className="text-2xl font-bold">{selectedUser.name}</h2>
-                  <p className="text-gray-500">ID: {selectedUser._id}</p>
+                  <h2 className="text-2xl font-bold">
+                    {selectedUser.student_name}
+                  </h2>
+                  <p className="text-gray-500">ID: {selectedUser.id}</p>
                 </div>
 
                 {/* Personal Information */}
@@ -208,7 +193,7 @@ export default function StudentManagementDashboard() {
                     </p>
                     <p>
                       <strong>Contact Number:</strong>{" "}
-                      {selectedUser.contactNumber}
+                      {selectedUser.contact_number}
                     </p>
                     <p>
                       <strong>Email:</strong> {selectedUser.email}
@@ -226,19 +211,19 @@ export default function StudentManagementDashboard() {
                   </h3>
                   <div className="grid grid-cols-2 gap-4">
                     <p>
-                      <strong>Time Slot:</strong> {selectedUser.timeSlot}
+                      <strong>Time Slot:</strong> {selectedUser.time_slot}
                     </p>
                     <p>
-                      <strong>Course Type:</strong> {selectedUser.courseType}
+                      <strong>Course Type:</strong> {selectedUser.course_type}
                     </p>
                     <p>
                       <strong>Course Duration:</strong>{" "}
-                      {selectedUser.courseDuration}
+                      {selectedUser.course_duration}
                     </p>
                     <p>
                       <strong>Total Amount: </strong>
                       {"NPR. "}
-                      {selectedUser.totalAmount}
+                      {selectedUser.total_amount}
                     </p>
                   </div>
                 </div>
@@ -249,7 +234,7 @@ export default function StudentManagementDashboard() {
                   </h3>
                   <p>
                     <strong>Education Background:</strong>{" "}
-                    {selectedUser.educationBackground}
+                    {selectedUser.education_background}
                   </p>
                 </div>
 
@@ -260,15 +245,15 @@ export default function StudentManagementDashboard() {
                   </h3>
                   <div className="grid grid-cols-2 gap-4">
                     <p>
-                      <strong>Parent Name:</strong> {selectedUser.parentName}
+                      <strong>Parent Name:</strong> {selectedUser.parent_name}
                     </p>
                     <p>
                       <strong>Parent Contact:</strong>{" "}
-                      {selectedUser.parentNumber}
+                      {selectedUser.parent_number}
                     </p>
                     <p>
                       <strong>Relationship:</strong>{" "}
-                      {selectedUser.parentRelationship}
+                      {selectedUser.parent_relationship}
                     </p>
                   </div>
                 </div>
@@ -277,11 +262,11 @@ export default function StudentManagementDashboard() {
                 <div className="bg-gray-50 p-4 rounded-lg shadow text-sm">
                   <p>
                     <strong>Created At:</strong>{" "}
-                    {new Date(selectedUser.createdAt).toDateString()}
+                    {new Date(selectedUser.created_at).toDateString()}
                   </p>
                   <p>
                     <strong>Updated At:</strong>{" "}
-                    {new Date(selectedUser.updatedAt).toDateString()}
+                    {new Date(selectedUser.updated_at).toDateString()}
                   </p>
                 </div>
               </div>
@@ -290,20 +275,20 @@ export default function StudentManagementDashboard() {
                 <h3 className="text-2xl font-bold mb-3">Payment Details</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <p>
-                    <strong>Total Amount:</strong> {selectedUser.totalAmount}
+                    <strong>Total Amount:</strong> {selectedUser.total_amount}
                   </p>
                   <p>
                     <strong>Amount Paid:</strong>{" "}
-                    {selectedUser.billing?.amountPaid}
+                    {selectedUser.amount_paid}
                   </p>
 
                   <p>
                     <strong>Payment Method:</strong>{" "}
-                    {selectedUser.billing?.paymentMethod}
+                    {selectedUser.payment_method}
                   </p>
                   <p>
                     <strong>Billing Date :</strong>{" "}
-                    {new Date(selectedUser.billing?.billingDate).toDateString()}
+                    {new Date(selectedUser.billing_date).toDateString()}
                   </p>
                 </div>
               </div>

@@ -4,12 +4,11 @@ import toast from "react-hot-toast";
 import useLoading from "../../../hooks/useLoading";
 import SpinnerComponent from "../../../hooks/SpinnerComponent";
 import { useParams, useNavigate } from "react-router-dom";
-import { useApiUpdate, useFaqs } from "../../../store/ContextAPI";
+import { useApiUpdate } from "../../../store/ContextAPI";
 
 export default function FAQForm() {
   const [formData, setFormData] = useState({ question: "", answer: "" });
   const { setLoading, loading } = useLoading();
-  const {} = useFaqs();
   const { faqId } = useParams();
   const navigate = useNavigate();
   const { setApiUpdated } = useApiUpdate();

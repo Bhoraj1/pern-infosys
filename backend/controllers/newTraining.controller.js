@@ -57,7 +57,7 @@ export const AddTraining = async (req, res, next) => {
         }
         const query = `
         INSERT INTO trainings (title,description,course_duration,time_slot,  total_amount, instructor_name,instructor_bio,syllabus,image)
-        VALUES ($1, $2, $3, $4,$5,$6,$7,$8,$9)
+        VALUES ($1, $2, $3,$4,$5,$6,$7,$8,$9)
         RETURNING *;
       `;
         const values = [
@@ -98,7 +98,7 @@ export const getTrainings = async (req, res, next) => {
       if (!training) {
         return res.status(404).json({ message: "training not found" });
       }
-      return res.status(200).json(team);
+      return res.status(200).json(training);
     } else {
       const result = await db.query("SELECT * FROM trainings");
       const trainings = result.rows;
@@ -122,13 +122,16 @@ export const deleteTraining = async (req, res, next) => {
       errorHandler(403, "You are not authorized to delete this training")
     );
   }
-  const training = await TrainingModel.findById(req.params.id);
-  if (!training) {
-    return next(errorHandler(404, "Training not found"));
-  }
   try {
-    await TrainingModel.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "Training deleted successfully" });
+    const { rows } = await db.query("SELECT * FROM trainings WHERE id = $1", [
+      req.params.id,
+    ]);
+    if (rows.length === 0) {
+      return next(errorHandler(404, "Training not found"));
+    }
+    await db.query("DELETE FROM trainings WHERE id = $1", [req.params.id]);
+
+    res.status(200).json({ message: "training deleted successfully" });
   } catch (error) {
     next(error);
   }
@@ -142,26 +145,96 @@ export const updateTraining = async (req, res, next) => {
     );
   }
   try {
-    const updatedTraining = await TrainingModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        $set: {
-          title: req.body.title,
-          description: req.body.description,
-          courseDuration: req.body.courseDuration,
-          totalAmount: req.body.totalAmount,
-          instructorName: req.body.instructorName,
-          instructorBio: req.body.instructorBio,
-          syllabus: req.body.syllabus,
-          updatedAt: new Date(),
-        },
-      },
-      { new: true }
-    );
-    // console.log(updatedTraining);
-    res
-      .status(200)
-      .json({ message: "Training updated successfully", updatedTraining });
+    const {
+      title,
+      description,
+      course_duration,
+      time_slot,
+      instructor_name,
+      instructor_bio,
+      syllabus,
+    } = req.body;
+    const { trainingId } = req.params;
+
+    const fieldsToUpdate = [];
+    const values = [];
+
+    if (title) {
+      fieldsToUpdate.push("title");
+      values.push(title);
+    }
+
+    if (description) {
+      fieldsToUpdate.push("description");
+      values.push(description);
+    }
+    if (course_duration) {
+      fieldsToUpdate.push("course_duration");
+      values.push(course_duration);
+    }
+    if (time_slot) {
+      fieldsToUpdate.push("time_slot");
+      values.push(time_slot);
+    }
+    if (instructor_name) {
+      fieldsToUpdate.push("instructor_name");
+      values.push(instructor_name);
+    }
+    if (instructor_bio) {
+      fieldsToUpdate.push("instructor_bio");
+      values.push(instructor_bio);
+    }
+    if (syllabus) {
+      fieldsToUpdate.push("syllabus");
+      values.push(syllabus);
+    }
+
+    // Handle image upload if a new file is provided
+    if (req.file) {
+      const result = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.v2.uploader.upload_stream(
+          { folder: "trainings" },
+          (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          }
+        );
+        uploadStream.end(req.file.buffer);
+      });
+
+      fieldsToUpdate.push("image");
+      values.push(result.secure_url);
+    }
+
+    if (fieldsToUpdate.length === 0) {
+      return next(errorHandler(400, "No fields to update"));
+    }
+
+    values.push(trainingId);
+
+    const setClause = fieldsToUpdate
+      .map((field, index) => `${field} = $${index + 1}`)
+      .join(", ");
+    const updateQuery = `
+          UPDATE trainings 
+          SET ${setClause} 
+          WHERE id = $${values.length} 
+          RETURNING id, title, description, course_duration, time_slot,instructor_name,instructor_bio,syllabus,image
+        `;
+
+    const updatedTraining = await db.query(updateQuery, values);
+
+    if (updatedTraining.rowCount === 0) {
+      return next(errorHandler(404, "Training not found"));
+    }
+
+    res.status(200).json({
+      message: "Training updated successfully",
+      updatedTraining: updatedTraining.rows[0],
+    });
   } catch (error) {
     next(error);
   }

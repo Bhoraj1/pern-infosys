@@ -51,8 +51,6 @@ export default function ReviewForm() {
       toast.error("Please fill all fields and provide a rating!");
       return;
     }
-
-    // Create FormData for uploading to backend
     const reviewData = new FormData();
     reviewData.append("name", formData.name);
     reviewData.append("review", formData.review);
