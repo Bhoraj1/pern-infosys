@@ -24,7 +24,7 @@ export default function Review() {
     <div className="p-4 font-[sans-serif] ">
       <div className="max-w-6xl max-lg:max-w-3xl mx-auto">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-gray-800 text-2xl font-bold">
+          <h2 className="text-blue-950 text-3xl font-bold">
             What our happy client say
           </h2>
           <p className="text-sm text-gray-500 mt-6 leading-relaxed">

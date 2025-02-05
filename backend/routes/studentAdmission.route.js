@@ -15,6 +15,6 @@ router.delete(
   verifyToken,
   deleteStudentAdmission
 );
-router.put("/update/:id", verifyToken, updateStudentAdmission);
+router.put("/update/:studentId", verifyToken, updateStudentAdmission);
 
 export default router;

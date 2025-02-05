@@ -169,7 +169,6 @@ export const updateTeamMember = async (req, res, next) => {
     } = req.body;
     const { teamId } = req.params;
 
-    // Prepare fields to update
     const fieldsToUpdate = [];
     const values = [];
 
@@ -209,7 +208,6 @@ export const updateTeamMember = async (req, res, next) => {
       }
     }
 
-    // Handle image upload if a new file is provided
     if (req.file) {
       const result = await new Promise((resolve, reject) => {
         const uploadStream = cloudinary.v2.uploader.upload_stream(
@@ -223,7 +221,6 @@ export const updateTeamMember = async (req, res, next) => {
           }
         );
 
-        // Pass the file buffer to the upload stream
         uploadStream.end(req.file.buffer);
       });
 
@@ -231,20 +228,16 @@ export const updateTeamMember = async (req, res, next) => {
       values.push(result.secure_url);
     }
 
-    // Check if there are fields to update
     if (fieldsToUpdate.length === 0) {
       return next(errorHandler(400, "No fields to update"));
     }
 
-    // Add blogId as the last parameter for the WHERE clause
     values.push(teamId);
 
-    // Dynamically construct the SET clause
     const setClause = fieldsToUpdate
       .map((field, index) => `${field} = $${index + 1}`)
       .join(", ");
 
-    // Execute the update query
     const updateQuery = `
         UPDATE teams 
         SET ${setClause} 

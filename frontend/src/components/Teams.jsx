@@ -7,7 +7,7 @@ export default function Teams() {
     <section className="py-14">
       <div className="max-w-screen-xl mx-auto px-4 md:px-16">
         <div className="max-w-xl">
-          <h3 className="text-gray-800 text-3xl font-semibold sm:text-4xl">
+          <h3 className="text-blue-950 text-3xl font-bold sm:text-4xl">
             Meet our team of Engineers, designers, and product managers.
           </h3>
           <p className="text-gray-600 mt-3">

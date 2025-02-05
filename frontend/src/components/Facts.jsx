@@ -83,7 +83,7 @@ export default function Facts() {
       ref={factsRef}
       className="p-8 min-h-[350px] flex flex-col items-center justify-center font-sans"
     >
-      <h2 className="text-gray-800 text-3xl font-bold mb-16 text-center">
+      <h2 className="text-blue-950 text-3xl font-bold mb-16 text-center">
         Application Metrics
       </h2>
       <div className="grid lg:grid-cols-4 sm:grid-cols-2 gap-6 max-lg:gap-12">

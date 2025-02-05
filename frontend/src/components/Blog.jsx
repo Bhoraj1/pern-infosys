@@ -1,8 +1,15 @@
 import React from "react";
 import { useBlog } from "../store/ContextAPI";
+import { useNavigate } from "react-router-dom";
 
 export default function Blog() {
   const { blogs } = useBlog();
+  const navigate = useNavigate();
+
+  const handleBlogClick = (item) => {
+    const courseTitleSlug = item.title.replace(/\s+/g, "-").toLowerCase();
+    navigate(`/blog/${courseTitleSlug}`, { state: { item } });
+  };
   return (
     <div className="bg-white font-sans mt-16">
       <div className="w-full sm:m-7 mx-auto  p-4">
@@ -16,6 +23,7 @@ export default function Blog() {
             <div
               key={index}
               className="bg-white cursor-pointer rounded-lg overflow-hidden shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] relative group"
+              onClick={() => handleBlogClick(item)}
             >
               <img
                 src={item.image}
@@ -30,8 +38,11 @@ export default function Blog() {
                 <h3 className="text-xl font-bold text-gray-800">
                   {item.title}
                 </h3>
-                <div className="h-0 overflow-hidden group-hover:h-16 group-hover:mt-4 transition-all duration-300">
-                  <p className="text-gray-800 text-sm">{item.description}</p>
+                <div className="h-0 overflow-hidden group-hover:h-16 group-hover:mt-1 transition-all duration-300">
+                  <p
+                    className="line-clamp-3 blog-description"
+                    dangerouslySetInnerHTML={{ __html: item.description }}
+                  ></p>
                 </div>
               </div>
             </div>

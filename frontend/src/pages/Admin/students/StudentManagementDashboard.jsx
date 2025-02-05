@@ -278,8 +278,7 @@ export default function StudentManagementDashboard() {
                     <strong>Total Amount:</strong> {selectedUser.total_amount}
                   </p>
                   <p>
-                    <strong>Amount Paid:</strong>{" "}
-                    {selectedUser.amount_paid}
+                    <strong>Amount Paid:</strong> {selectedUser.amount_paid}
                   </p>
 
                   <p>

@@ -8,11 +8,14 @@ import {
   Textarea,
 } from "flowbite-react";
 // import { useReactToPrint } from "react-to-print";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
+import useLoading from "../../../hooks/useLoading";
+import SpinnerComponent from "../../../hooks/SpinnerComponent";
 
 export default function AdmissionForm() {
   const [formData, setFormData] = useState({
-    name: "",
+    student_name: "",
     dob: "",
     contact_number: "",
     email: "",
@@ -30,26 +33,81 @@ export default function AdmissionForm() {
   const contentRef = useRef(null);
   // const reactToPrintFn = useReactToPrint({ contentRef });
   const navigate = useNavigate();
+  const { setLoading, loading } = useLoading();
+  const { studentId } = useParams();
+
+  useEffect(() => {
+    if (studentId) {
+      fetch(`/api/backend4/getStudentAdmission/${studentId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          const dobDate = data.dob.split("T")[0];
+          setFormData({
+            student_name: data.student_name,
+            dob: dobDate,
+            contact_number: data.contact_number,
+            course_duration: data.course_duration,
+            email: data.email,
+            address: data.address,
+            education_background: data.education_background,
+            parent_name: data.parent_name,
+            parent_number: data.parent_number,
+            course_type: data.course_type,
+            parent_relationship: data.parent_relationship,
+          });
+        })
+        .catch((err) => console.log(err));
+    }
+  }, [studentId]);
 
   const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
+    setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate("/dashboard?tab=admission-bill", { state: { formData } });
+    try {
+      setLoading(true);
+      if (studentId) {
+        const res = await fetch(`/api/backend4/update/${studentId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+        if (!res.ok) {
+          setLoading(false);
+          throw new Error("Failed to update student");
+        }
+        setLoading(false);
+        toast.success("Student updated successfully!");
+        navigate("/dashboard?tab=student-dahsboard");
+      } else {
+        setLoading(false);
+        navigate("/dashboard?tab=admission-bill", { state: { formData } });
+      }
+    } catch {
+      setLoading(false);
+      toast.error("Something wrong");
+    }
   };
   useEffect(() => {
     const fetchCourseTypes = async () => {
       try {
+        setLoading(true);
         const res = await fetch(`/api/backend6/getTrainings`);
         if (!res.ok) {
+          setLoading(false);
           console.error("Failed to fetch course types.");
           return;
         }
+        setLoading(false);
         const data = await res.json();
         setTrainings(data.trainings);
       } catch (err) {
+        setLoading(false);
         console.error("Error fetching course details:", err);
       }
     };
@@ -81,10 +139,14 @@ export default function AdmissionForm() {
   };
 
   return (
-    <div ref={contentRef} className="container mx-auto mt-5">
+    <div
+      ref={contentRef}
+      className={`container mx-auto ${studentId ? "pt-16" : "pt-5"}`}
+    >
+      {loading && <SpinnerComponent />}
       <Card className="">
         <h1 className="flex justify-center items-center gap-1 text-xl font-bold">
-          Student Admission Form
+          {studentId ? "Update Student Form" : "Student Admission Form"}
           <span className="hidden print:block">Next Infosys</span>
         </h1>
         <form onSubmit={handleSubmit} id="admissionForm">
@@ -95,11 +157,12 @@ export default function AdmissionForm() {
               <div>
                 <Label value="Student Name" />
                 <TextInput
-                  id="name"
-                  name="name"
+                  id="student_name"
+                  name="student_name"
                   placeholder="Enter full name"
                   required
                   onChange={handleInputChange}
+                  value={formData.student_name}
                 />
               </div>
 
@@ -112,6 +175,7 @@ export default function AdmissionForm() {
                   type="date"
                   required
                   onChange={handleInputChange}
+                  value={formData.dob}
                 />
               </div>
 
@@ -125,6 +189,7 @@ export default function AdmissionForm() {
                   placeholder="Enter contact number"
                   required
                   onChange={handleInputChange}
+                  value={formData.contact_number}
                 />
               </div>
 
@@ -138,6 +203,7 @@ export default function AdmissionForm() {
                   placeholder="Enter email address"
                   required
                   onChange={handleInputChange}
+                  value={formData.email}
                 />
               </div>
 
@@ -152,6 +218,7 @@ export default function AdmissionForm() {
                   rows={2}
                   onChange={handleInputChange}
                   className="p-2"
+                  value={formData.address}
                 />
               </div>
               {/* Course Details */}
@@ -164,11 +231,12 @@ export default function AdmissionForm() {
                     <Select
                       id="course_type"
                       name="course_type"
-                      x
                       required
                       onChange={handleCourseSelection}
                     >
-                      <option> Select Course Type </option>
+                      <option>
+                        {studentId ? formData.course_type : "select courses"}
+                      </option>
                       {trainings.length > 0 ? (
                         trainings.map((training) => (
                           <option key={training.id} value={training.id}>
@@ -231,6 +299,7 @@ export default function AdmissionForm() {
                     placeholder="Enter school/college name"
                     required
                     onChange={handleInputChange}
+                    value={formData.education_background}
                   />
                 </div>
               </div>
@@ -247,6 +316,7 @@ export default function AdmissionForm() {
                       placeholder="Parent/Guardian Name"
                       required
                       onChange={handleInputChange}
+                      value={formData.parent_name}
                     />
                   </div>
 
@@ -258,6 +328,7 @@ export default function AdmissionForm() {
                       placeholder="Parent/Guardian Contact"
                       required
                       onChange={handleInputChange}
+                      value={formData.parent_number}
                     />
                   </div>
                   <div>
@@ -268,6 +339,7 @@ export default function AdmissionForm() {
                       placeholder="e.g., Father, Mother"
                       required
                       onChange={handleInputChange}
+                      value={formData.parent_relationship}
                     />
                   </div>
                 </div>
@@ -279,7 +351,7 @@ export default function AdmissionForm() {
           <div className="flex justify-between print:hidden">
             <div className="mt-4 ">
               <Button type="submit" className="bg-blue-950">
-                Register Student
+                {studentId ? "Update student" : "Register Student"}
               </Button>
             </div>
             {/*<div className="mt-4">

@@ -136,32 +136,89 @@ export const updateStudentAdmission = async (req, res, next) => {
     );
   }
   try {
-    const updatedStudentAdmission = await studentModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        $set: {
-          name: req.body.name,
-          dob: req.body.dob,
-          contactNumber: req.body.contactNumber,
-          email: req.body.email,
-          address: req.body.address,
-          timeSlot: req.body.timeSlot,
-          courseType: req.body.courseType,
-          courseDuration: req.body.courseDuration,
-          educationBackground: req.body.educationBackground,
-          parentName: req.body.parentName,
-          parentNumber: req.body.parentNumber,
-          parentRelationship: req.body.parentRelationship,
-          totalAmount: req.body.totalAmount,
-          updatedAt: new Date(),
-        },
-      },
-      { new: true }
-    );
-    // console.log("Update Student Admission Request Data:", req.body);
+    const {
+      student_name,
+      contact_number,
+      email,
+      address,
+      dob,
+      education_background,
+      parent_name,
+      parent_number,
+      parent_relationship,
+    } = req.body;
+    const { studentId } = req.params;
+
+    const fieldsToUpdate = [];
+    const values = [];
+
+    if (student_name) {
+      fieldsToUpdate.push("student_name");
+      values.push(student_name);
+    }
+
+    if (contact_number) {
+      fieldsToUpdate.push("contact_number");
+      values.push(contact_number);
+    }
+    if (email) {
+      fieldsToUpdate.push("email");
+      values.push(email);
+    }
+    if (address) {
+      fieldsToUpdate.push("address");
+      values.push(address);
+    }
+    if (dob) {
+      fieldsToUpdate.push("dob");
+      values.push(dob);
+    }
+
+    if (education_background) {
+      fieldsToUpdate.push("education_background");
+      values.push(education_background);
+    }
+
+    if (parent_name) {
+      fieldsToUpdate.push("parent_name");
+      values.push(parent_name);
+    }
+    if (parent_number) {
+      fieldsToUpdate.push("parent_number");
+      values.push(parent_number);
+    }
+
+    if (parent_relationship) {
+      fieldsToUpdate.push("parent_relationship");
+      values.push(parent_relationship);
+    }
+
+    if (fieldsToUpdate.length === 0) {
+      return next(errorHandler(400, "No fields to update"));
+    }
+
+    values.push(studentId);
+
+    const setClause = fieldsToUpdate
+      .map((field, index) => `${field} = $${index + 1}`)
+      .join(", ");
+
+    const updateQuery = `
+        UPDATE student_admissions 
+        SET ${setClause} 
+        WHERE id = $${values.length} 
+        RETURNING id, student_name, student_number, email, address,dob,education_background,parent_name,parent_name,parent_relationship
+      `;
+
+    const updatedStudent = await db.query(updateQuery, values);
+
+    if (updatedStudent.rowCount === 0) {
+      return next(errorHandler(404, "Student not found"));
+    }
+
     res.status(200).json({
-      message: "StudentAdmission updated successfully",
-      updatedStudentAdmission,
+      message: "Student updated successfully",
+      updatedStudent: updatedStudent.rows[0],
     });
   } catch (error) {
     next(error);

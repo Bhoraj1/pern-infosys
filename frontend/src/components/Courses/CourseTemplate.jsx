@@ -7,7 +7,6 @@ export default function CourseTemplate() {
 
   return (
     <div className="max-w-7xl h-full mx-auto px-4 py-8 mt-10">
-      {/* Hero Section */}
       <div className="rounded-xl p-8 mb-8">
         <div className="grid md:grid-cols-2 gap-8">
           <div>
