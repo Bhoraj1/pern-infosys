@@ -41,7 +41,7 @@ export default function BlogDash() {
         <Table hoverable className="shadow-md">
           <Table.Head>
             <Table.HeadCell>Created AT</Table.HeadCell>
-            <Table.HeadCell>Name</Table.HeadCell>
+            <Table.HeadCell>Posted By</Table.HeadCell>
             <Table.HeadCell>Title</Table.HeadCell>
             <Table.HeadCell>View</Table.HeadCell>
             <Table.HeadCell>Edit</Table.HeadCell>
@@ -54,7 +54,7 @@ export default function BlogDash() {
                 className="bg-white dark:border-gray-700 dark:bg-gray-800 "
               >
                 <Table.Cell>
-                  {new Date(blog.createdAt).toDateString()}
+                  {new Date(blog.created_at).toDateString()}
                 </Table.Cell>
                 <Table.Cell>{blog.name}</Table.Cell>
                 <Table.Cell>{blog.title}</Table.Cell>
@@ -130,29 +130,25 @@ export default function BlogDash() {
         <Modal.Header />
         <Modal.Body>
           {selectedTeam && (
-            <div className="max-w-lg mx-auto p-3  bg-white  rounded-xl text-center">
+            <div className="max-w-lg mx-auto p-3  bg-white rounded-xl text-center">
               <img
                 src={selectedTeam.image}
                 alt="blog-image"
                 className="mx-auto"
               />
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">
-                {selectedTeam.title}
-              </h3>
+              <h3 className="text-2xl font-bold mb-2">{selectedTeam.title}</h3>
               <p className="text-black font-semibold text-md mb-4">
                 BY {selectedTeam.name.toUpperCase()}
               </p>
 
-              <div className="p-4 bg-gray-100 rounded-lg shadow-sm">
+              <div className="p-4  rounded-lg shadow-sm">
                 <div className="grid grid-cols-1 gap-3 text-left">
-                  <p>
-                    <strong className="text-gray-700">Title:</strong>{" "}
-                    {selectedTeam.title}
-                  </p>
-                  <p>
-                    <strong className="text-gray-700">Description:</strong>{" "}
-                    {selectedTeam.description}
-                  </p>
+                  <p
+                    className="curriculum-content"
+                    dangerouslySetInnerHTML={{
+                      __html: selectedTeam.description,
+                    }}
+                  ></p>
                 </div>
               </div>
             </div>

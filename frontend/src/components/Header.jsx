@@ -1,12 +1,18 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { IoCall } from "react-icons/io5";
 import { IoCloseCircleSharp } from "react-icons/io5";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import logo from "../assets/images/logo.png";
 import { FaChevronRight, FaTimes, FaBars } from "react-icons/fa";
-import { Alert, Label, Spinner, Textarea, TextInput } from "flowbite-react";
+import {
+  Alert,
+  Label,
+  Select,
+  Spinner,
+  Textarea,
+  TextInput,
+} from "flowbite-react";
 import toast from "react-hot-toast";
 
 export default function Header() {
@@ -14,9 +20,6 @@ export default function Header() {
   const [formData, setFormData] = useState({});
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
-  // const [services, setServices] = useState([]);
-  const [trainingAndServices, setTrainingAndServices] = useState([]);
-  const navigate = useNavigate();
   const [state, setState] = useState(false);
 
   const handleInquiryClick = () => {
@@ -52,54 +55,17 @@ export default function Header() {
         },
         body: JSON.stringify(formData),
       });
-      // console.log(res);
+
       setLoading(false);
       if (res.ok) {
         toast.success("Inquiry send successfully");
         setIsFormVisible(false);
-        navigate("/courses");
       }
     } catch (error) {
       setErrorMessage(error.message);
       setLoading(false);
     }
   };
-
-  //for dropdown training redirections
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const response = await fetch("/api/backend7/get-services");
-        if (!response.ok) {
-          throw new Error("Failed to fetch services");
-        }
-        // const data = await response.json();
-        // setServices(data.services);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    fetchServices();
-  }, []);
-
-  useEffect(() => {
-    const fetchTrainingAndServices = async () => {
-      try {
-        const res = await fetch(`api/backend/title`);
-        const data = await res.json();
-        // console.log(data);
-        if (!res.ok) {
-          console.error(data.message || "Failed to fetch users.");
-        } else {
-          setTrainingAndServices([...data.courses, ...data.services]);
-        }
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      }
-    };
-    fetchTrainingAndServices();
-  }, []);
 
   const navigation = [
     { title: "Home", path: "/" },
@@ -110,7 +76,7 @@ export default function Header() {
   ];
 
   return (
-    <nav className="bg-white md:text-sm fixed top-0 left-0 w-full z-50 shadow-md border-b">
+    <nav className="bg-white md:text-sm fixed top-0 left-0 w-full z-50  border-b-2 ">
       <div className="gap-x-20 items-center max-w-screen-xl mx-auto px-4 md:flex md:px-8">
         <div className="flex items-center justify-between py-2 md:block">
           <a href="/">
@@ -134,7 +100,7 @@ export default function Header() {
             state ? "block" : "hidden"
           } `}
         >
-          <ul className="justify-center items-center space-y-6 md:flex md:space-x-6 md:space-y-0">
+          <ul className="justify-center items-center space-y-6 md:flex md:space-x-8 md:space-y-0">
             {navigation.map((item, idx) => {
               const isActive = location.pathname === item.path;
               return (
@@ -169,7 +135,6 @@ export default function Header() {
       {isFormVisible && (
         <div className="fixed inset-0 z-50 bg-gray-700 bg-opacity-50 flex justify-center items-center transition-all duration-500">
           <div className="bg-white p-8 rounded-md shadow-lg w-full sm:w-4/5 lg:w-3/4 xl:w-2/3 max-h-[90%] overflow-y-scroll flex relative">
-            {/* Close Button (X Icon) */}
             <IoCloseCircleSharp
               onClick={() => setIsFormVisible(false)}
               className="absolute top-2 right-2 text-3xl text-gray-700 cursor-pointer"
@@ -193,7 +158,6 @@ export default function Header() {
                   </div>
                   <div className="w-full sm:w-1/2">
                     <Label value="Email" />
-
                     <TextInput
                       type="email"
                       id="email"
@@ -201,6 +165,7 @@ export default function Header() {
                       placeholder="example@gmail.com"
                       onChange={handleChange}
                       required
+                      className="ml-2"
                     />
                   </div>
                 </div>
@@ -219,21 +184,22 @@ export default function Header() {
                   </div>
                   <div className="w-full sm:w-1/2">
                     <Label value="Services" />
-                    <select
+                    <Select
                       id="services"
                       name="services"
                       required
                       onChange={handleChange}
-                      className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
                     >
                       <option>Select Services</option>
-                      {trainingAndServices.map((item, index) => (
-                        <option key={index} value={item.title}>
-                          {item.title}
-                        </option>
-                      ))}
                       <option>Web Development</option>
-                    </select>
+                      <option>CCTV Installation</option>
+                      <option>Software Development</option>
+                      <option>Mobile App Development</option>
+                      <option>Domain and Hosting</option>
+                      <option>Interactive Board Installation</option>
+                      <option>IT Consulting and Services</option>
+                      <option>Computer Accessories</option>
+                    </Select>
                   </div>
                 </div>
                 <div className="mb-4">
@@ -274,7 +240,6 @@ export default function Header() {
               </form>
             </div>
 
-            {/* Company Contact Info on the Right */}
             <div className="hidden sm:inline w-full sm:w-1/3 p-4 border-l border-gray-300  ">
               <h3 className="text-xl font-semibold mb-4">Get In Touch</h3>
               <p className="mb-2 text-sm">

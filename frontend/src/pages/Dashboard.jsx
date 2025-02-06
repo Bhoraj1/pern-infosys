@@ -58,11 +58,9 @@ export default function Dashboard() {
         {tab === "service-form" && <ServicesForm />}
         {tab === "services" && <ServicesDash />}
 
-        {/*faq section */}
         {tab === "add-faq" && <FAQForm />}
         {tab === "faq-dash" && <FAQ_Dash />}
 
-        {/*Team section */}
         {tab === "add-team" && <TeamForm />}
         {tab === "team-dash" && <TeamDash />}
         {tab === "add-review" && <ReviewForm />}

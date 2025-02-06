@@ -1,4 +1,4 @@
-import { TextInput, Button, Label, FileInput } from "flowbite-react";
+import { TextInput, Button, Label, FileInput, Select } from "flowbite-react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useEffect, useState } from "react";
@@ -15,6 +15,7 @@ export default function BlogForm() {
   const [formData, setFormData] = useState({
     name: "",
     title: "",
+    category: "",
     description: "",
     image: null,
   });
@@ -24,13 +25,14 @@ export default function BlogForm() {
       fetch(`/api/backend11/getBlogs/${blogId}`)
         .then((res) => res.json())
         .then((data) => {
-          // console.log(data);
+          console.log(data);
           setFormData((prev) => ({
             ...prev,
-            name: data.name,
-            title: data.title,
-            description: data.description,
-            image: data.image,
+            name: data.blog.name,
+            title: data.blog.title,
+            category: data.blog.category,
+            description: data.blog.description,
+            image: data.blog.image,
           }));
         })
         .catch((err) => console.log(err));
@@ -56,6 +58,7 @@ export default function BlogForm() {
       !formData.name ||
       !formData.title ||
       !formData.description ||
+      !formData.category ||
       !formData.image
     ) {
       toast.error("Please fill out all fields!");
@@ -65,6 +68,7 @@ export default function BlogForm() {
     const blogData = new FormData();
     blogData.append("name", formData.name);
     blogData.append("title", formData.title);
+    blogData.append("category", formData.category);
     blogData.append("description", formData.description);
     blogData.append("image", formData.image);
 
@@ -138,16 +142,37 @@ export default function BlogForm() {
             value={formData.title}
           />
         </div>
-        <div className="mb-4">
-          <Label htmlFor="image" value="Image" />
-          <FileInput
-            type="file"
-            id="image"
-            name="image"
-            className="mt-1"
-            accept="image/*"
-            onChange={handleInputChange}
-          />
+        <div className="flex justify-between gap-3">
+          <div className="mb-4">
+            <Label htmlFor="image" value="Image" />
+            <FileInput
+              type="file"
+              id="image"
+              name="image"
+              className="mt-1"
+              accept="image/*"
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="mt-7">
+            <Select
+              onChange={handleInputChange}
+              id="category"
+              required
+              value={formData.category}
+            >
+              <option value="">Select a Category</option>
+              <option value="Web Technolgoy">Web Technology</option>
+              <option value="Design">Graphics Design</option>
+              <option value="Programming">Programming</option>
+              <option value="Technology Trends">Technology Trends</option>
+              <option value="Cybersecurity">Cybersecurity</option>
+              <option value="Cybersecurity">Digital Marketing</option>
+              <option value="AI & Machine Learning">
+                AI & Machine Learning
+              </option>
+            </Select>
+          </div>
         </div>
         {formData.image && (
           <img

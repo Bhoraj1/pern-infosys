@@ -32,7 +32,7 @@ export default function Blog() {
               />
               <div className="p-6 absolute bottom-0 left-0 right-0 bg-[#F79F35] opacity-90">
                 <span className="text-sm block text-gray-800 mb-2">
-                  {new Date(item.updatedAt).toDateString()} | BY{" "}
+                  {new Date(item.created_at).toDateString()} | BY <span />
                   {item.name.toUpperCase()}
                 </span>
                 <h3 className="text-xl font-bold text-gray-800">
@@ -40,7 +40,7 @@ export default function Blog() {
                 </h3>
                 <div className="h-0 overflow-hidden group-hover:h-16 group-hover:mt-1 transition-all duration-300">
                   <p
-                    className="line-clamp-3 blog-description"
+                    className="line-clamp-2 blog-description"
                     dangerouslySetInnerHTML={{ __html: item.description }}
                   ></p>
                 </div>

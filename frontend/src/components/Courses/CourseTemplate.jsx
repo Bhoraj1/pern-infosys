@@ -27,7 +27,7 @@ export default function CourseTemplate() {
             <img
               src={course.image}
               alt="course-image"
-              className="w-full h-80 object-cover"
+              className="w-full h-full sm:h-80 object-cover rounded-xl"
             />
           </div>
         </div>
@@ -50,13 +50,9 @@ export default function CourseTemplate() {
               </button>
             ))}
           </div>
-
-          {/* Tab Content */}
           {activeTab === "overview" && (
             <div>
               <h2 className="text-2xl font-bold mb-4">What You'll Learn</h2>
-
-              {/* Extracting h2 headings from syllabus */}
               {(() => {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(

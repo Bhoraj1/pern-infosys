@@ -355,7 +355,8 @@ export default function Footer() {
 
       <div className="max-w-screen-xl mx-auto text-center">
         <p className="text-gray-400 text-[13px]">
-          ReadymadeUI Copyright © 2024. All rights reserved.
+          Next Infosys Copyright © {new Date().getFullYear()}. All rights
+          reserved.
         </p>
       </div>
     </footer>

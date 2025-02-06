@@ -3,10 +3,8 @@ import { errorHandler } from "../utils/error.js";
 import cloudinary from "../helper/cloudniaryConfig.js";
 import { db } from "../config/db.connect.js";
 
-// Use memory storage instead of disk storage
 const storage = multer.memoryStorage();
 
-// Image filter (check if file is an image)
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image")) {
     cb(null, true);
@@ -15,21 +13,18 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Initialize multer with memory storage
 export const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
 });
 
 export const postBlog = async (req, res, next) => {
-  const { name, title, description } = req.body;
+  const { name, title, category, description } = req.body;
 
-  // Validate required fields
-  if (!name || !title || !description) {
+  if (!name || !title || !category || !description) {
     return next(errorHandler(400, "All fields are required"));
   }
 
-  // Check if an image file was uploaded
   if (!req.file) {
     return next(errorHandler(400, "Image file is required"));
   }
@@ -43,13 +38,12 @@ export const postBlog = async (req, res, next) => {
           );
         }
 
-        // Insert the blog post data into the database
         const query = `
-        INSERT INTO blogs (name, title, image, description)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO blogs (name, title,category, image, description)
+        VALUES ($1, $2,$3, $4, $5)
         RETURNING *;
       `;
-        const values = [name, title, result.secure_url, description];
+        const values = [name, title, category, result.secure_url, description];
 
         try {
           const { rows } = await db.query(query, values);
@@ -77,7 +71,15 @@ export const getBlog = async (req, res, next) => {
       if (!blog) {
         return res.status(404).json({ message: "Blog not found" });
       }
-      return res.status(200).json(blog);
+      const relatedBlogsResult = await db.query(
+        "SELECT * FROM blogs WHERE category = $1 AND id != $2 LIMIT 7",
+        [blog.category, req.params.id]
+      );
+      return res.status(200).json({
+        message: "Related Blog retrive successfully !",
+        blog,
+        relatedBlogs: relatedBlogsResult.rows,
+      });
     } else {
       const result = await db.query("SELECT * FROM blogs");
       const blogs = result.rows;
@@ -95,7 +97,6 @@ export const getBlog = async (req, res, next) => {
 };
 
 export const deleteBlog = async (req, res, next) => {
-  // console.log(req.user);
   if (!req.user.isAdmin) {
     return next(
       errorHandler(403, "You are not authorized to delete this service")
@@ -124,10 +125,9 @@ export const updateBlogPost = async (req, res, next) => {
   }
 
   try {
-    const { name, title, description } = req.body;
+    const { name, title, category, description } = req.body;
     const { blogId } = req.params;
 
-    // Prepare fields to update
     const fieldsToUpdate = [];
     const values = [];
 
@@ -140,13 +140,16 @@ export const updateBlogPost = async (req, res, next) => {
       fieldsToUpdate.push("title");
       values.push(title);
     }
+    if (category) {
+      fieldsToUpdate.push("category");
+      values.push(category);
+    }
 
     if (description) {
       fieldsToUpdate.push("description");
       values.push(description);
     }
 
-    // Handle image upload if a new file is provided
     if (req.file) {
       const result = await new Promise((resolve, reject) => {
         const uploadStream = cloudinary.v2.uploader.upload_stream(
@@ -168,15 +171,12 @@ export const updateBlogPost = async (req, res, next) => {
       values.push(result.secure_url);
     }
 
-    // Check if there are fields to update
     if (fieldsToUpdate.length === 0) {
       return next(errorHandler(400, "No fields to update"));
     }
 
-    // Add blogId as the last parameter for the WHERE clause
     values.push(blogId);
 
-    // Dynamically construct the SET clause
     const setClause = fieldsToUpdate
       .map((field, index) => `${field} = $${index + 1}`)
       .join(", ");
@@ -186,7 +186,7 @@ export const updateBlogPost = async (req, res, next) => {
       UPDATE blogs 
       SET ${setClause} 
       WHERE id = $${values.length} 
-      RETURNING id, name, title, image, description
+      RETURNING id, name, title,category, image, description
     `;
 
     const updatedBlog = await db.query(updateQuery, values);
