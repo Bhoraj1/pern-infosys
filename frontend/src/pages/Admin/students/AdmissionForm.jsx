@@ -48,6 +48,8 @@ export default function AdmissionForm() {
             dob: dobDate,
             contact_number: data.contact_number,
             course_duration: data.course_duration,
+            time_slot: data.time_slot,
+            total_amount: data.total_amount,
             email: data.email,
             address: data.address,
             education_background: data.education_background,
@@ -233,6 +235,7 @@ export default function AdmissionForm() {
                       name="course_type"
                       required
                       onChange={handleCourseSelection}
+                      value={formData.course_type}
                     >
                       <option>
                         {studentId ? formData.course_type : "select courses"}

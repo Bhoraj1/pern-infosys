@@ -12,7 +12,7 @@ export default function AdmissionBill() {
     // console.log("Received formData:", formData);
   }, [formData]);
   const [billingData, setBillingData] = useState({
-    student_name: formData?.name || "",
+    student_name: formData?.student_name || "",
     student_number: formData?.contact_number || "",
     payment_method: "",
     amount: "",

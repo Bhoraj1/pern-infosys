@@ -1,23 +1,15 @@
-import { Button, Card, Label, Select, TextInput } from "flowbite-react";
-import { useEffect, useState } from "react";
+import { Button, Card, Label, TextInput } from "flowbite-react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import { AiOutlineSearch } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
-
-// Debounce function to delay API requests
-const debounce = (func, delay) => {
-  let timeout;
-  return (...args) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), delay);
-  };
-};
 
 export default function BillForm() {
   const navigate = useNavigate();
   const [searchKey, setSearchKey] = useState("");
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState({});
+
   const handleInputChange = (e) => {
     setSearchKey(e.target.value);
   };
@@ -25,49 +17,35 @@ export default function BillForm() {
   const handleFormChange = (e) => {
     setSelectedStudent({ ...selectedStudent, [e.target.id]: e.target.value });
   };
-  // console.log(selectedStudent);
 
-  const fetchStudents = async () => {
-    try {
-      const res = await fetch(`/api/backend5/search/${searchKey}`);
-      const data = await res.json();
-      // console.log(data);
-      if (data) {
-        setStudents(data);
-      } else {
-        setStudents(null);
-        console.error("No student found.");
-      }
-    } catch (error) {
-      setStudents(null);
-      console.log(error);
+  const handleSearch = () => {
+    if (searchKey.trim() === "") {
+      toast.error("Please enter a search term");
+      return;
     }
+
+    fetch(`/api/backend4/getStudentAdmission?searchKey=${searchKey}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setStudents(data.admissions);
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("Failed to fetch students");
+      });
   };
-
-  const debouncedFetchStudents = debounce(fetchStudents, 200);
-
-  // Trigger search on every key press (debounced)
-  useEffect(() => {
-    debouncedFetchStudents(searchKey);
-    // Clear students when searchKey is empty
-    if (!searchKey) {
-      setStudents([]);
-    }
-  }, [searchKey]);
 
   const handleStudentSelect = (student) => {
     setSelectedStudent(student);
-    setStudents([]); // Clear the search results after selection
-    // setSearchKey(""); // Clear the search input field
+    setStudents([]);
   };
 
   const remainingAmount =
     selectedStudent.totalAmount - selectedStudent.amountPaid;
-  console.log(selectedStudent._id);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      navigate(`/dashboard?tab=bill`, { state: { selectedStudent } });
       const res = await fetch(
         `/api/backend5/update-bill/${selectedStudent._id}`,
         {
@@ -84,8 +62,8 @@ export default function BillForm() {
         return;
       } else {
         toast.success("Bill Updated successfully");
-        // navigate("/dashboard?tab=services");
       }
+      navigate(`/dashboard?tab=bill`, { state: { selectedStudent } });
     } catch (error) {
       toast.error("Failed to update Bill");
     }
@@ -93,37 +71,55 @@ export default function BillForm() {
 
   return (
     <>
-      <div className=" container flex flex-col ">
-        <form className="flex justify-center items-center m-16  mx-auto  ">
+      <div className="container flex flex-col">
+        <form
+          className="flex justify-center items-center mt-7 mx-auto"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSearch();
+          }}
+        >
           <TextInput
             type="text"
             placeholder="Search by Number....."
-            rightIcon={AiOutlineSearch}
             value={searchKey}
             onChange={handleInputChange}
-            className="inline w-56 lg:inline md:w-[540px] h-3 text-lg "
+            className="inline w-56 lg:inline md:w-[540px] h-2 text-lg"
           />
+          <Button type="submit" className="ml-2 mt-8 bg-blue-950">
+            <AiOutlineSearch />
+          </Button>
         </form>
+
         {/* Real-Time Results */}
-        {students?.length > 0 ? (
-          <div className="flex flex-col items-center  justify-center ">
-            <ul className=" flex flex-col justify-center items-center w-full max-w-xl p-4 md:block">
-              {students.map((student) => (
-                <li
-                  key={student._id}
-                  className=" justify-center cursor-pointer p-2 hover:bg-gray-200 hover:rounded-lg w-full"
-                  onClick={() => handleStudentSelect(student)}
-                >
-                  {student.phoneNumber} - {student.name}
-                </li>
-              ))}
+        {searchKey && students.length > 0 ? (
+          <div className="flex flex-col items-center justify-center">
+            <ul className="flex flex-col justify-center items-center w-full max-w-xl p-4 md:block">
+              {students
+                .filter((item) => {
+                  return searchKey.toLowerCase() === ""
+                    ? item
+                    : item.student_number
+                        .toLowerCase()
+                        .includes(searchKey.toLowerCase());
+                })
+                .map((student) => (
+                  <li
+                    key={student.id}
+                    className="ml-28 sm:ml-0 cursor-pointer p-2 hover:bg-gray-200 hover:rounded-lg w-full"
+                    onClick={() => handleStudentSelect(student)}
+                  >
+                    {student.student_number} - {student.student_name}
+                  </li>
+                ))}
             </ul>
           </div>
         ) : (
           <div className="flex justify-center items-center w-full">
-            <p className="text-lg text-gray-600">No student found.</p>
+            <p className="text-lg text-gray-600 m-3">No student found.</p>
           </div>
         )}
+
         <div className="flex justify-center pt-7">
           <Card className="flex flex-col gap-4 bg-white rounded-md shadow-md lg:w-[600px] w-[300px] md:ml-14">
             <form onSubmit={handleSubmit}>
@@ -135,7 +131,7 @@ export default function BillForm() {
                     type="text"
                     placeholder="student Name"
                     required
-                    value={selectedStudent?.name}
+                    value={selectedStudent?.student_name || ""}
                     onChange={handleFormChange}
                   />
                 </div>
@@ -146,7 +142,7 @@ export default function BillForm() {
                     type="number"
                     placeholder="student Number"
                     required
-                    value={selectedStudent?.phoneNumber}
+                    value={selectedStudent?.student_number || ""}
                     onChange={handleFormChange}
                   />
                 </div>
@@ -155,9 +151,9 @@ export default function BillForm() {
                   <TextInput
                     id="email1"
                     type="email"
-                    placeholder=" email address"
+                    placeholder="email address"
                     required
-                    value={selectedStudent?.email}
+                    value={selectedStudent?.email || ""}
                     onChange={handleFormChange}
                   />
                 </div>
@@ -166,9 +162,9 @@ export default function BillForm() {
                   <TextInput
                     id="courseDuration"
                     type="text"
-                    placeholder=" Course Duration"
+                    placeholder="Course Duration"
                     required
-                    value={selectedStudent?.courseDuration}
+                    value={selectedStudent?.course_duration || ""}
                     onChange={handleFormChange}
                   />
                 </div>
@@ -179,7 +175,7 @@ export default function BillForm() {
                     type="text"
                     id="paymentMethod"
                     placeholder="Payment Method"
-                    value={selectedStudent.paymentMethod}
+                    value={selectedStudent.payment_method || ""}
                     onChange={handleFormChange}
                   />
                 </div>
@@ -190,7 +186,7 @@ export default function BillForm() {
                     type="number"
                     placeholder="Amount paid"
                     required
-                    value={selectedStudent.amountPaid}
+                    value={selectedStudent.amount_paid || ""}
                     onChange={handleFormChange}
                   />
                   {selectedStudent.amountPaid != null && (

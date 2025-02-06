@@ -54,7 +54,10 @@ export default function BlogDetails() {
                 </div>
                 <div className="flex items-center gap-2">
                   <FaClock />
-                  <span>8 min read</span>
+                  <span>
+                    {blog && (blog.description.length / 1000).toFixed(0)} mins
+                    read
+                  </span>
                 </div>
               </div>
             </div>
