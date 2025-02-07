@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useFaqs } from "../store/ContextAPI";
 
-
 export default function FAQ() {
   const { faqs } = useFaqs();
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
@@ -15,7 +14,7 @@ export default function FAQ() {
       <div className="mx-auto w-full max-w-7xl px-5 py-16 md:px-10 md:py-20">
         <div className="flex flex-col gap-y-12 md:grid md:grid-flow-row md:grid-cols-2 md:gap-8 lg:grid-cols-[0.8fr_1fr]">
           <div>
-            <h2 className="mb-4 text-blue-950 text-3xl font-bold md:text-4xl">
+            <h2 className="mb-4 text-blue-950 font-bold text-3xl">
               Frequently Asked Questions
             </h2>
             <p className="text-lg md:text-xl">

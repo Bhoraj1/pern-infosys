@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Label, TextInput, Card, Select } from "flowbite-react";
-import { useReactToPrint } from "react-to-print";
 import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -9,7 +8,6 @@ export default function AdmissionBill() {
   const { formData } = location.state || {};
   const navigate = useNavigate();
   useEffect(() => {
-    // console.log("Received formData:", formData);
   }, [formData]);
   const [billingData, setBillingData] = useState({
     student_name: formData?.student_name || "",
@@ -18,10 +16,8 @@ export default function AdmissionBill() {
     amount: "",
   });
   const [submitted, setSubmitted] = useState(false);
-  const contentRef = useRef(null);
-
   const handleNextClick = () => {
-    navigate("/dashboard?tab=student-dahsboard");
+    navigate("/dashboard?tab=student-dashboard");
   };
 
   const handleInputChange = (e) => {
@@ -63,10 +59,6 @@ export default function AdmissionBill() {
       console.error("Error submitting billing data:", error);
     }
   };
-
-  const reactToPrintFn = useReactToPrint({
-    contentRef,
-  });
 
   const getCurrentDate = () => {
     const date = new Date();
@@ -150,7 +142,7 @@ export default function AdmissionBill() {
           </form>
         ) : (
           <div
-            ref={contentRef}
+          
             className="p-8 rounded-lg w-full max-w-lg mx-auto bg-white print:w-[250px] print:p-2 print:text-xs print:font-normal print:leading-tight print:mx-auto print:my-4 print:shadow-none"
           >
             <h2 className="text-xl font-bold mb-4 text-center">
@@ -190,15 +182,8 @@ export default function AdmissionBill() {
                 </p>
               </div>
             </div>
-
-            {/* Print Button */}
+  
             <div className="flex pt-7 text-center justify-between">
-              <Button
-                className="bg-red-500 hover:bg-red-600 text-white print:hidden"
-                onClick={reactToPrintFn}
-              >
-                Print Billing Details
-              </Button>
               <Button onClick={handleNextClick}>Next</Button>
             </div>
           </div>

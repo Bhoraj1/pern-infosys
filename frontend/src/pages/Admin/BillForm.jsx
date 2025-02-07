@@ -41,13 +41,13 @@ export default function BillForm() {
   };
 
   const remainingAmount =
-    selectedStudent.totalAmount - selectedStudent.amountPaid;
+    selectedStudent.total_amount - selectedStudent.amount_paid;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await fetch(
-        `/api/backend5/update-bill/${selectedStudent._id}`,
+        `/api/backend4/update-bill/${selectedStudent.id}`,
         {
           method: "PUT",
           headers: {
@@ -91,7 +91,6 @@ export default function BillForm() {
           </Button>
         </form>
 
-        {/* Real-Time Results */}
         {searchKey && students.length > 0 ? (
           <div className="flex flex-col items-center justify-center">
             <ul className="flex flex-col justify-center items-center w-full max-w-xl p-4 md:block">
@@ -127,7 +126,7 @@ export default function BillForm() {
                 <div>
                   <Label htmlFor="name" value="Name" />
                   <TextInput
-                    id="name"
+                    id="student_name"
                     type="text"
                     placeholder="student Name"
                     required
@@ -138,7 +137,7 @@ export default function BillForm() {
                 <div>
                   <Label htmlFor="PhoneNumber" value="Phone Number" />
                   <TextInput
-                    id="PhoneNumber"
+                    id="student_number"
                     type="number"
                     placeholder="student Number"
                     required
@@ -160,7 +159,7 @@ export default function BillForm() {
                 <div>
                   <Label htmlFor="CourseDuration" value="Duration" />
                   <TextInput
-                    id="courseDuration"
+                    id="course_duration"
                     type="text"
                     placeholder="Course Duration"
                     required
@@ -173,7 +172,7 @@ export default function BillForm() {
                   <Label htmlFor="PaymentMethod" value="Payment Method" />
                   <TextInput
                     type="text"
-                    id="paymentMethod"
+                    id="payment_method"
                     placeholder="Payment Method"
                     value={selectedStudent.payment_method || ""}
                     onChange={handleFormChange}
@@ -182,14 +181,14 @@ export default function BillForm() {
                 <div>
                   <Label htmlFor="amountPaid" value="Amount Paid" />
                   <TextInput
-                    id="amountPaid"
+                    id="amount_paid"
                     type="number"
                     placeholder="Amount paid"
                     required
                     value={selectedStudent.amount_paid || ""}
                     onChange={handleFormChange}
                   />
-                  {selectedStudent.amountPaid != null && (
+                  {selectedStudent.amount_paid != null && (
                     <p className="text-sm text-red-600">
                       Remaining Amount: {remainingAmount}
                     </p>

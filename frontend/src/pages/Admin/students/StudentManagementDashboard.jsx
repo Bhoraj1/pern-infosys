@@ -26,7 +26,6 @@ export default function StudentManagementDashboard() {
         try {
           const res = await fetch(`/api/backend4/getStudentAdmission`);
           const data = await res.json();
-          console.log(data);
           if (!res.ok) {
             console.error(data.message || "Failed to fetch users.");
           } else {
@@ -72,26 +71,6 @@ export default function StudentManagementDashboard() {
               placeholder="Search by name..."
               className="inline w-[200px] md:w-96 p-7"
             />
-          </div>
-
-          <div className="flex  gap-7 justify-center mb-6">
-            <div className="flex p-6 gap-4 items-center bg-gradient-to-r from-blue-500 to-teal-400 rounded-lg shadow-lg">
-              <h4 className="text-white font-medium text-lg">
-                Total Admissions:
-              </h4>
-              <p className="text-3xl text-white font-semibold font-tw-cen">
-                {totalAdmissions}
-              </p>
-            </div>
-
-            <div className="flex p-4 gap-2 items-center bg-gradient-to-r from-green-500 to-teal-400 rounded-lg shadow-lg">
-              <h4 className="text-white font-medium text-lg">
-                Last 30 Days Admissions:
-              </h4>
-              <p className=" text-3xl text-white text-center font-semibold font-tw-cen">
-                {lstMonthAdmissions}
-              </p>
-            </div>
           </div>
         </div>
 

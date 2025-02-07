@@ -2,7 +2,6 @@ import { errorHandler } from "../utils/error.js";
 import { db } from "../config/db.connect.js";
 
 export const StudentAdmission = async (req, res, next) => {
-  // console.log(req.body)
   const {
     student_name,
     student_number,
@@ -124,9 +123,6 @@ export const deleteStudentAdmission = async (req, res, next) => {
 };
 
 export const updateStudentAdmission = async (req, res, next) => {
-  // const { id } = req.params;
-  // console.log(id);
-
   if (!req.user.isAdmin) {
     return next(
       errorHandler(
@@ -222,5 +218,76 @@ export const updateStudentAdmission = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+  }
+};
+export const update_bill = async (req, res, next) => {
+  try {
+    const { studentId } = req.params;
+    const {
+      student_name,
+      student_number,
+      email,
+      course_duration,
+      payment_method,
+      amount_paid,
+    } = req.body;
+
+    const fieldsToUpdate = [];
+    const values = [];
+
+    if (student_name) {
+      fieldsToUpdate.push("student_name");
+      values.push(student_name);
+    }
+    if (student_number) {
+      fieldsToUpdate.push("student_number");
+      values.push(student_number);
+    }
+    if (email) {
+      fieldsToUpdate.push("email");
+      values.push(email);
+    }
+    if (course_duration) {
+      fieldsToUpdate.push("course_duration");
+      values.push(course_duration);
+    }
+    if (payment_method) {
+      fieldsToUpdate.push("payment_method");
+      values.push(payment_method);
+    }
+    if (amount_paid !== undefined) {
+      fieldsToUpdate.push("amount_paid");
+      values.push(amount_paid);
+    }
+
+    if (fieldsToUpdate.length === 0) {
+      return res.status(400).json({ error: "No fields provided for update" });
+    }
+
+    values.push(studentId);
+
+    const setClause = fieldsToUpdate
+      .map((field, index) => `${field} = $${index + 1}`)
+      .join(", ");
+
+    const updateQuery = `
+      UPDATE student_admissions
+      SET ${setClause}
+      WHERE id = $${values.length}
+      RETURNING *;
+    `;
+
+    const updatedStudent = await db.query(updateQuery, values);
+
+    if (updatedStudent.rowCount === 0) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    res.status(200).json({
+      message: "Student Bill updated successfully",
+      student: updatedStudent.rows[0],
+    });
+  } catch (error) {
+    next(errorHandler(error));
   }
 };

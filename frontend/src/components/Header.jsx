@@ -70,7 +70,7 @@ export default function Header() {
   const navigation = [
     { title: "Home", path: "/" },
     { title: "IT Training", path: "/courses" },
-    { title: " About", path: "/about" },
+    { title: " Contact Us", path: "/contactUs" },
     { title: " Services", path: "/AllServices" },
     { title: " Blog", path: "/blog" },
   ];
@@ -80,7 +80,7 @@ export default function Header() {
       <div className="gap-x-20 items-center max-w-screen-xl mx-auto px-4 md:flex md:px-8">
         <div className="flex items-center justify-between py-2 md:block">
           <a href="/">
-            <img src={logo} alt="logo" className="w-16 h-14" />
+            <img src={logo} alt="logo" className="w-18 h-14" />
           </a>
           <div className="md:hidden">
             <button
@@ -107,7 +107,7 @@ export default function Header() {
                 <li key={idx} className="text-gray-700 hover:text-gray-900">
                   <a
                     href={item.path}
-                    className={`block text-lg nav-link ${
+                    className={`block text-md nav-link ${
                       isActive ? "active" : ""
                     }`}
                   >

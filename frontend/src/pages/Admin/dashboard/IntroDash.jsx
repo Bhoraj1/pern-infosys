@@ -58,7 +58,6 @@ export default function IntroDash() {
           </div>
         </div>
 
-        {/* Sales */}
         <div className="relative flex flex-col bg-white text-gray-700 shadow-md rounded-xl p-4">
           <div className="absolute -mt-4 grid h-16 w-16 place-items-center bg-gradient-to-tr from-orange-600 to-orange-400 text-white rounded-xl mx-4">
             <FaRegMoneyBillAlt className="w-6 h-6" />

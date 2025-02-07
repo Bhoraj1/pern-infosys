@@ -3,6 +3,7 @@ import {
   deleteStudentAdmission,
   getStudentAdmission,
   StudentAdmission,
+  update_bill,
   updateStudentAdmission,
 } from "../controllers/studentAdmission.controller.js";
 import { verifyToken } from "../utils/verifyUser.js";
@@ -16,5 +17,6 @@ router.delete(
   deleteStudentAdmission
 );
 router.put("/update/:studentId", verifyToken, updateStudentAdmission);
+router.put("/update-bill/:studentId", verifyToken, update_bill);
 
 export default router;

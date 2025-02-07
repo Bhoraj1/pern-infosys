@@ -6,9 +6,7 @@ import DashProfile from "../components/DashProfile";
 import Admissions from "../components/Admissions";
 import AdmissionForm from "./Admin/students/AdmissionForm";
 import StudentManagementDashboard from "./Admin/students/StudentManagementDashboard";
-import CertificateForm from "./Admin/CertificateForm";
 import BillForm from "./Admin/BillForm";
-import CreateBill from "./CreateBill";
 import AdmissionBill from "./Admin/students/AdmissionBill";
 import ServicesDash from "./Admin/service/ServiceDash";
 import ServicesForm from "./Admin/service/ServicesForm";
@@ -22,6 +20,7 @@ import BlogForm from "./Admin/blog/BlogForm";
 import BlogDash from "./Admin/blog/BlogDash";
 import ReviewDash from "./Admin/revieww/ReviewDash";
 import TrainingDash from "./Admin/training/TrainingDash";
+import CreateBill from "./Admin/CreateBill";
 
 export default function Dashboard() {
   const location = useLocation();
@@ -47,10 +46,9 @@ export default function Dashboard() {
 
         {tab === "inquiry-user" && <DashInquiryUsers />}
         {tab === "admissions" && <Admissions />}
-        {tab === "certificate-form" && <CertificateForm />}
         {tab === "admission-form" && <AdmissionForm />}
         {tab === "admission-bill" && <AdmissionBill />}
-        {tab === "student-dahsboard" && <StudentManagementDashboard />}
+        {tab === "student-dashboard" && <StudentManagementDashboard />}
         {tab === "create-billing" && <BillForm />}
         {tab === "bill" && <CreateBill />}
         {tab === "add-training" && <AddTrainingForm />}

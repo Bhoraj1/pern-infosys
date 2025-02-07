@@ -23,7 +23,10 @@ router.get("/getTrainings/:id?", getTrainings);
 router.delete("/deleteTraining/:id", verifyToken, deleteTraining);
 router.put(
   "/update/:trainingId",
-  upload.single("image"),
+  upload.fields([
+    { name: "course_image", maxCount: 1 },
+    { name: "instructor_image", maxCount: 1 },
+  ]),
   verifyToken,
   updateTraining
 );

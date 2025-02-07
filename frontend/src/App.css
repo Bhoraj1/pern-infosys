@@ -1,15 +1,11 @@
 .nav-link {
   font-weight: "bold";
-  color: "#F79F35"
+  color: "#F79F35";
+  font-size:15px;
 }
-
 .nav-link.active {
-  font-weight: bold;
-  font-size: 17px;
-  color : #F79F35;
   border-bottom: 2px solid #F79F35;
 }
-
 .curriculum-content h1 {
   font-size: 1.3rem; 
   font-weight: bold;

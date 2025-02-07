@@ -41,7 +41,7 @@ export default function FAQ_Dash() {
           <Table.Body className="divide-y">
             {faqs.map((faq) => (
               <Table.Row
-                key={faq._id}
+                key={faq.id}
                 className="bg-white dark:border-gray-700 dark:bg-gray-800 "
               >
                 <Table.Cell>

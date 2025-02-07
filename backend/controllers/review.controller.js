@@ -1,7 +1,6 @@
 import multer from "multer";
 import { errorHandler } from "../utils/error.js";
 import cloudinary from "../helper/cloudniaryConfig.js";
-import ReviewModel from "../models/review.model.js";
 import { db } from "../config/db.connect.js";
 
 // Use memory storage instead of disk storage

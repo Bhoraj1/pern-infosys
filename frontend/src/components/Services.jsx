@@ -95,7 +95,7 @@ export default function Services() {
 
   const displayedServices = servicesList.slice(0, visibleServices);
   return (
-    <div className="font-[sans-serif] bg-gradient-to-r hide: bg-white py-12 px-4">
+    <div className=" bg-gradient-to-r hide: bg-white py-12 px-4">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-center text-2xl text-blue-950 sm:text-3xl font-bold mb-12">
           Discover Our Exclusive Services

@@ -3,10 +3,8 @@ import { errorHandler } from "../utils/error.js";
 import cloudinary from "../helper/cloudniaryConfig.js";
 import { db } from "../config/db.connect.js";
 
-// Use memory storage instead of disk storage
 const storage = multer.memoryStorage();
 
-// Image filter (check if file is an image)
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image")) {
     cb(null, true);
@@ -15,7 +13,6 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Initialize multer with memory storage
 export const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
@@ -145,12 +142,12 @@ export const deleteTraining = async (req, res, next) => {
 };
 
 export const updateTraining = async (req, res, next) => {
-  // console.log(req.user);
   if (!req.user.isAdmin) {
     return next(
       errorHandler(403, "You are not authorized to update this training")
     );
   }
+
   try {
     const {
       title,
@@ -170,7 +167,6 @@ export const updateTraining = async (req, res, next) => {
       fieldsToUpdate.push("title");
       values.push(title);
     }
-
     if (description) {
       fieldsToUpdate.push("description");
       values.push(description);
@@ -195,24 +191,35 @@ export const updateTraining = async (req, res, next) => {
       fieldsToUpdate.push("syllabus");
       values.push(syllabus);
     }
-    if (req.files) {
-      const uploadPromises = Object.values(req.files).flat().map(file => {
-        return new Promise((resolve, reject) => {
-          cloudinary.v2.uploader.upload_stream(
-            { folder: "trainings" },
-            (error, result) => {
-              if (error) reject(error);
-              else resolve(result.secure_url);
-            }
-          ).end(file.buffer);
-        });
+
+    if (req.files?.course_image) {
+      const courseImageUpload = new Promise((resolve, reject) => {
+        cloudinary.v2.uploader
+          .upload_stream({ folder: "trainings" }, (error, result) => {
+            if (error) reject(error);
+            else resolve(result.secure_url);
+          })
+          .end(req.files.course_image[0].buffer);
       });
 
-      const imageUrls = await Promise.all(uploadPromises);
-      imageUrls.forEach(url => {
-        fieldsToUpdate.push("course_image"); 
-        values.push(url);
+      const courseImageUrl = await courseImageUpload;
+      fieldsToUpdate.push("course_image");
+      values.push(courseImageUrl);
+    }
+
+    if (req.files?.instructor_image) {
+      const instructorImageUpload = new Promise((resolve, reject) => {
+        cloudinary.v2.uploader
+          .upload_stream({ folder: "trainings" }, (error, result) => {
+            if (error) reject(error);
+            else resolve(result.secure_url);
+          })
+          .end(req.files.instructor_image[0].buffer);
       });
+
+      const instructorImageUrl = await instructorImageUpload;
+      fieldsToUpdate.push("instructor_image");
+      values.push(instructorImageUrl);
     }
 
     if (fieldsToUpdate.length === 0) {
@@ -225,11 +232,11 @@ export const updateTraining = async (req, res, next) => {
       .map((field, index) => `${field} = $${index + 1}`)
       .join(", ");
     const updateQuery = `
-          UPDATE trainings 
-          SET ${setClause} 
-          WHERE id = $${values.length} 
-          RETURNING id, title, description, course_duration, time_slot,instructor_name,instructor_bio,syllabus,course_image,instructor_image
-        `;
+      UPDATE trainings 
+      SET ${setClause} 
+      WHERE id = $${values.length} 
+      RETURNING *;
+    `;
 
     const updatedTraining = await db.query(updateQuery, values);
 

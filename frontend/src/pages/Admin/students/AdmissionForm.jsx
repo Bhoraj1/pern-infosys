@@ -153,9 +153,7 @@ export default function AdmissionForm() {
         </h1>
         <form onSubmit={handleSubmit} id="admissionForm">
           <div>
-            {/* Form Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Name */}
               <div>
                 <Label value="Student Name" />
                 <TextInput
@@ -167,8 +165,6 @@ export default function AdmissionForm() {
                   value={formData.student_name}
                 />
               </div>
-
-              {/* DOB */}
               <div>
                 <Label value="Date of Birth" />
                 <TextInput
@@ -180,8 +176,6 @@ export default function AdmissionForm() {
                   value={formData.dob}
                 />
               </div>
-
-              {/* Contact Number */}
               <div>
                 <Label htmlFor="contactNumber" value="Contact Number" />
                 <TextInput
@@ -195,7 +189,6 @@ export default function AdmissionForm() {
                 />
               </div>
 
-              {/* Email */}
               <div>
                 <Label value="Email Address" />
                 <TextInput
@@ -208,8 +201,6 @@ export default function AdmissionForm() {
                   value={formData.email}
                 />
               </div>
-
-              {/* Address */}
               <div className="md:col-span-2">
                 <Label htmlFor="address" value="Address" />
                 <Textarea
@@ -223,12 +214,10 @@ export default function AdmissionForm() {
                   value={formData.address}
                 />
               </div>
-              {/* Course Details */}
               <div className="md:col-span-2">
                 <h2 className="text-lg font-bold mb-2">Course Details</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    {/* 1.Course types */}
                     <Label value="Course Type" />
                     <Select
                       id="course_type"

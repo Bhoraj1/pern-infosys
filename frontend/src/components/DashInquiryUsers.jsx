@@ -105,11 +105,8 @@ export default function DashUsers() {
               {users.map((user) => {
                 return (
                   <>
-                    <Table.Body className="divide-y">
-                      <Table.Row
-                        key={user.id}
-                        className="bg-white hover:bg-gray-100"
-                      >
+                    <Table.Body key={user.id} className="divide-y">
+                      <Table.Row className="bg-white hover:bg-gray-100">
                         <Table.Cell>
                           {new Date(user.createdAt).toDateString()}
                         </Table.Cell>

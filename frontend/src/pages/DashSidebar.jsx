@@ -498,7 +498,7 @@ export default function DashSidebar() {
                 </li>
                 <li>
                   <Link
-                    to="/dashboard?tab=student-dahsboard"
+                    to="/dashboard?tab=student-dashboard"
                     className="text-gray-300 text-sm block cursor-pointer hover:bg-[#0b1739] rounded-md px-3 py-2 transition-all duration-300"
                   >
                     <span>Students Dashboard</span>
@@ -578,21 +578,6 @@ export default function DashSidebar() {
                 </a>
               </li>
             </ul>
-
-            <div className="mt-6 flex items-center cursor-pointer">
-              <img
-                src="https://readymadeui.com/profile.webp"
-                className="w-9 h-9 rounded-full border-2 border-gray-600 shrink-0"
-              />
-              <div className="ml-4">
-                <p className="text-sm text-gray-300 whitespace-nowrap">
-                  John Doe
-                </p>
-                <p className="text-xs text-gray-400 whitespace-nowrap">
-                  Active free account
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       </div>

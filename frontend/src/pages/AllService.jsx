@@ -77,7 +77,7 @@ export default function Services() {
   return (
     <div className="font-[sans-serif] bg-gradient-to-r hide: bg-white py-12 px-4 mt-11">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-center text-2xl sm:text-4xl font-bold mb-16">
+        <h2 className="text-center text-2xl text-blue-950 sm:text-4xl font-bold mb-16">
           Discover Our Exclusive Services
         </h2>
         <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-12 max-md:max-w-lg mx-auto">

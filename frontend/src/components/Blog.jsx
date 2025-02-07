@@ -14,7 +14,7 @@ export default function Blog() {
     <div className="bg-white font-sans mt-16">
       <div className="w-full sm:m-7 mx-auto  p-4">
         <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-gray-800 inline-block relative after:absolute after:w-4/6 after:h-1 after:left-0 after:right-0 after:-bottom-4 after:mx-auto after:bg-[#F79F35] after:rounded-lg-full">
+          <h2 className="text-3xl font-bold text-blue-950 inline-block relative after:absolute after:w-4/6 after:h-1 after:left-0 after:right-0 after:-bottom-4 after:mx-auto after:bg-[#F79F35] after:rounded-lg-full">
             LATEST BLOGS
           </h2>
         </div>
