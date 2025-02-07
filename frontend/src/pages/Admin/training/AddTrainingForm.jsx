@@ -12,7 +12,8 @@ export default function AddTrainingForm() {
   const { TrainingId } = useParams();
   const [formData, setFormData] = useState({
     title: "",
-    image: "",
+    course_image: "",
+    instructor_image: "",
     description: "",
     course_duration: "",
     time_slot: "",
@@ -30,12 +31,14 @@ export default function AddTrainingForm() {
           console.log(data);
           setFormData({
             title: data.title,
+            course_image: data.course_image,
             description: data.description,
             course_duration: data.course_duration,
             time_slot: data.time_slot,
             total_amount: data.total_amount,
             instructor_name: data.instructor_name,
             instructor_bio: data.instructor_bio,
+            instructor_image: data.instructor_image,
             syllabus: data.syllabus,
           });
         })
@@ -45,7 +48,11 @@ export default function AddTrainingForm() {
 
   const handleChange = (e) => {
     if (e.target.type === "file") {
-      setFormData({ ...formData, image: e.target.files[0] });
+      if (e.target.id === "course_image") {
+        setFormData({ ...formData, course_image: e.target.files[0] });
+      } else if (e.target.id === "instructor_image") {
+        setFormData({ ...formData, instructor_image: e.target.files[0] });
+      }
     } else {
       setFormData({ ...formData, [e.target.id]: e.target.value });
     }
@@ -59,16 +66,18 @@ export default function AddTrainingForm() {
     e.preventDefault();
     const formDataObj = new FormData();
     formDataObj.append("title", formData.title);
-    formDataObj.append("image", formData.image);
+    formDataObj.append("course_image", formData.course_image);
     formDataObj.append("description", formData.description);
     formDataObj.append("course_duration", formData.course_duration);
     formDataObj.append("time_slot", formData.time_slot);
     formDataObj.append("total_amount", formData.total_amount);
     formDataObj.append("instructor_name", formData.instructor_name);
     formDataObj.append("instructor_bio", formData.instructor_bio);
+    formDataObj.append("instructor_image", formData.instructor_image);
     formDataObj.append("syllabus", formData.syllabus);
 
     try {
+      console.log("Before Data:", formData);
       setLoading(true);
       let res;
       if (TrainingId) {
@@ -132,10 +141,10 @@ export default function AddTrainingForm() {
             />
           </div>
           <div className="mb-4">
-            <Label htmlFor="image" value="Image" />
+            <Label value="course image" />
             <FileInput
               type="file"
-              id="image"
+              id="course_image"
               className="mt-1"
               accept="image/*"
               onChange={handleChange}
@@ -205,20 +214,32 @@ export default function AddTrainingForm() {
         </div>
 
         {/* Instructor Name */}
-        <div>
-          <Label htmlFor="instructorName">Instructor Name</Label>
-          <TextInput
-            id="instructor_name"
-            name="instructor_name"
-            type="text"
-            onChange={handleChange}
-            required
-            placeholder="Enter instructor's name"
-            className="mt-1 block w-full"
-            value={formData.instructor_name}
-          />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <Label htmlFor="instructorName">Instructor Name</Label>
+            <TextInput
+              id="instructor_name"
+              name="instructor_name"
+              type="text"
+              onChange={handleChange}
+              required
+              placeholder="Enter instructor's name"
+              className="mt-1 block w-full"
+              value={formData.instructor_name}
+            />
+          </div>
+          <div className="mb-4">
+            <Label value="Instructor image" />
+            <FileInput
+              type="file"
+              id="instructor_image"
+              className="mt-1"
+              accept="image/*"
+              onChange={handleChange}
+              required={!TrainingId}
+            />
+          </div>
         </div>
-
         {/* Instructor Bio */}
         <div>
           <Label htmlFor="instructorBio">Instructor Bio</Label>

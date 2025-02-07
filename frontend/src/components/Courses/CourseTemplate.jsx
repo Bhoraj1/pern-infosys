@@ -25,7 +25,7 @@ export default function CourseTemplate() {
           </div>
           <div className="bg-gray-200 rounded-xl h-64 md:h-80">
             <img
-              src={course.image}
+              src={course.course_image}
               alt="course-image"
               className="w-full h-full sm:h-80 object-cover rounded-xl"
             />
@@ -53,27 +53,10 @@ export default function CourseTemplate() {
           {activeTab === "overview" && (
             <div>
               <h2 className="text-2xl font-bold mb-4">What You'll Learn</h2>
-              {(() => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(
-                  course.syllabus,
-                  "text/html"
-                );
-                const headings = Array.from(doc.querySelectorAll("h2")).map(
-                  (h2, index) => (
-                    <div key={index} className="border-b py-2">
-                      <h3 className="text-lg font-semibold">
-                        {h2.textContent}
-                      </h3>
-                    </div>
-                  )
-                );
-                return headings.length > 0 ? (
-                  headings
-                ) : (
-                  <p>No syllabus available</p>
-                );
-              })()}
+              <div
+                className="syllabus-content"
+                dangerouslySetInnerHTML={{ __html: course.syllabus }}
+              />
             </div>
           )}
 
@@ -90,8 +73,8 @@ export default function CourseTemplate() {
           {activeTab === "instructor" && (
             <div className="flex items-start gap-6">
               <img
-                src={course.image}
-                className="w-16 h-16 rounded-full shadow-xl"
+                src={course.instructor_image}
+                className="w-16 h-16 rounded-full"
               />
               <div>
                 <h3 className="text-xl font-bold mb-2">

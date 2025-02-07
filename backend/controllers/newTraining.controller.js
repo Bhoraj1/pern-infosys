@@ -22,7 +22,7 @@ export const upload = multer({
 });
 
 export const AddTraining = async (req, res, next) => {
-  // console.log(req.file);
+  // console.log(req.files);
   // console.log(req.body);
   const {
     title,
@@ -48,43 +48,50 @@ export const AddTraining = async (req, res, next) => {
   }
 
   try {
-    cloudinary.v2.uploader
-      .upload_stream({ folder: "trainings" }, async (error, result) => {
-        if (error) {
-          return next(
-            errorHandler(500, "Failed to upload image to Cloudinary")
-          );
-        }
-        const query = `
-        INSERT INTO trainings (title,description,course_duration,time_slot,  total_amount, instructor_name,instructor_bio,syllabus,image)
-        VALUES ($1, $2, $3,$4,$5,$6,$7,$8,$9)
-        RETURNING *;
-      `;
-        const values = [
-          title,
-          description,
-          course_duration,
-          time_slot,
-          total_amount,
-          instructor_name,
-          instructor_bio,
-          syllabus,
-          result.secure_url,
-        ];
+    const uploadPromises = Object.values(req.files)
+      .flat()
+      .map((file) => {
+        return new Promise((resolve, reject) => {
+          cloudinary.v2.uploader
+            .upload_stream({ folder: "trainings" }, (error, result) => {
+              if (error) reject(error);
+              else resolve(result.secure_url);
+            })
+            .end(file.buffer);
+        });
+      });
+    const imageUrls = await Promise.all(uploadPromises);
 
-        try {
-          const { rows } = await db.query(query, values);
-          res.status(201).json({
-            message: "training added successfully",
-            training: rows[0],
-          });
-        } catch (dbError) {
-          return next(errorHandler(500, "Error saving training to database"));
-        }
-      })
-      .end(req.file.buffer);
+    const query = `
+      INSERT INTO trainings (
+        title, description, course_duration, time_slot, total_amount, 
+        instructor_name, instructor_bio, syllabus, course_image, instructor_image
+      ) 
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
+      RETURNING *;
+    `;
+    const values = [
+      title,
+      description,
+      course_duration,
+      time_slot,
+      total_amount,
+      instructor_name,
+      instructor_bio,
+      syllabus,
+      imageUrls[0],
+      imageUrls[1],
+    ];
+
+    const { rows } = await db.query(query, values);
+
+    res.status(201).json({
+      message: "Training added successfully",
+      training: rows[0],
+    });
   } catch (error) {
-    next(error);
+    // console.log(error);
+    return next(errorHandler(500, "Error saving training to database"));
   }
 };
 
@@ -188,25 +195,24 @@ export const updateTraining = async (req, res, next) => {
       fieldsToUpdate.push("syllabus");
       values.push(syllabus);
     }
-
-    // Handle image upload if a new file is provided
-    if (req.file) {
-      const result = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.v2.uploader.upload_stream(
-          { folder: "trainings" },
-          (error, result) => {
-            if (error) {
-              reject(error);
-            } else {
-              resolve(result);
+    if (req.files) {
+      const uploadPromises = Object.values(req.files).flat().map(file => {
+        return new Promise((resolve, reject) => {
+          cloudinary.v2.uploader.upload_stream(
+            { folder: "trainings" },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result.secure_url);
             }
-          }
-        );
-        uploadStream.end(req.file.buffer);
+          ).end(file.buffer);
+        });
       });
 
-      fieldsToUpdate.push("image");
-      values.push(result.secure_url);
+      const imageUrls = await Promise.all(uploadPromises);
+      imageUrls.forEach(url => {
+        fieldsToUpdate.push("course_image"); 
+        values.push(url);
+      });
     }
 
     if (fieldsToUpdate.length === 0) {
@@ -222,7 +228,7 @@ export const updateTraining = async (req, res, next) => {
           UPDATE trainings 
           SET ${setClause} 
           WHERE id = $${values.length} 
-          RETURNING id, title, description, course_duration, time_slot,instructor_name,instructor_bio,syllabus,image
+          RETURNING id, title, description, course_duration, time_slot,instructor_name,instructor_bio,syllabus,course_image,instructor_image
         `;
 
     const updatedTraining = await db.query(updateQuery, values);
