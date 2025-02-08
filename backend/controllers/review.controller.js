@@ -2,11 +2,8 @@ import multer from "multer";
 import { errorHandler } from "../utils/error.js";
 import cloudinary from "../helper/cloudniaryConfig.js";
 import { db } from "../config/db.connect.js";
-
-// Use memory storage instead of disk storage
 const storage = multer.memoryStorage();
 
-// Image filter (check if file is an image)
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith("image")) {
     cb(null, true);
@@ -56,7 +53,6 @@ export const addReview = async (req, res, next) => {
             review: rows[0],
           });
         } catch (dbError) {
-          // console.error("Database Error:", dbError);
           return next(errorHandler(500, "Error saving Review to database"));
         }
       })

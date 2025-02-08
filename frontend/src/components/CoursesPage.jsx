@@ -55,13 +55,13 @@ export default function CoursesPage() {
   return (
     <>
       <div
-        className={`ml-20 sm:ml-16 ${
+        className={`${
           isCoursePage ? "mt-28" : "mt-10"
         }  font-tw-cen grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in `}
       >
         {courses.map((course) => (
           <div
-            className="w-64 bg-white rounded-xl shadow-lg relative transition-all duration-500 hover:scale-[1.07] h-[340px]"
+            className="w-64 mx-auto  bg-white rounded-xl shadow-lg relative transition-all duration-500 hover:scale-[1.07] h-[340px]"
             key={course.id}
           >
             <div className="absolute top-2 right-2 bg-red-600 text-white text-sm px-2 py-1 rounded-lg z-20 ">

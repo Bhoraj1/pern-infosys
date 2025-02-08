@@ -20,7 +20,9 @@ export default function ReviewForm() {
 
   useEffect(() => {
     if (reviewId) {
-      fetch(`/api/backend10/getReview/${reviewId}`)
+      fetch(`/api/backend10/getReview/${reviewId}`, {
+        credentials: "include",
+      })
         .then((res) => res.json())
         .then((data) => {
           console.log(data);
@@ -46,7 +48,6 @@ export default function ReviewForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Simple validation
     if (!formData.name || !formData.review || formData.rating === "0") {
       toast.error("Please fill all fields and provide a rating!");
       return;
@@ -64,11 +65,13 @@ export default function ReviewForm() {
         res = await fetch(`/api/backend10/update-review/${reviewId}`, {
           method: "PUT",
           body: reviewData,
+          credentials: "include",
         });
       } else {
-        res = await fetch("/api/backend10/add-review", {
+        res = await fetch(`/api/backend10/add-review`, {
           method: "POST",
           body: reviewData,
+          credentials: "include",
         });
       }
       const result = await res.json();
@@ -143,13 +146,9 @@ export default function ReviewForm() {
             required
           >
             <option value="1">1</option>
-            <option value="1.5">1.5</option>
             <option value="2">2</option>
-            <option value="2.5">2.5</option>
             <option value="3">3</option>
-            <option value="3.5">3.5</option>
             <option value="4">4</option>
-            <option value="4.5">4.5</option>
             <option value="5">5</option>
           </select>
         </div>
