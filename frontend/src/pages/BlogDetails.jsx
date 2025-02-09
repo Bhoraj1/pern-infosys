@@ -3,11 +3,11 @@ import {
   FaCalendarAlt,
   FaClock,
   FaFacebook,
-  FaTwitter,
   FaLinkedin,
   FaPen,
 } from "react-icons/fa";
-import { Textarea, TextInput } from "flowbite-react";
+import { FaXTwitter } from "react-icons/fa6";
+import { Button, Textarea, TextInput } from "flowbite-react";
 import { useEffect, useState } from "react";
 
 export default function BlogDetails() {
@@ -30,6 +30,33 @@ export default function BlogDetails() {
       .replace(/\s+/g, "-")
       .toLowerCase();
     navigate(`/blog/${courseTitleSlug}`, { state: { item: relatedBlog } });
+  };
+
+  // Function to handle social media sharing
+  const handleSocialShare = (platform) => {
+    const blogUrl = encodeURIComponent(window.location.href);
+    const blogTitle = encodeURIComponent(blog.title);
+    const blogDescription = encodeURIComponent(blog.description);
+
+    let shareUrl = "";
+
+    switch (platform) {
+      case "facebook":
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${blogUrl}`;
+        break;
+      case "twitter":
+        shareUrl = `https://twitter.com/intent/tweet?url=${blogUrl}&text=${blogTitle}`;
+        break;
+      case "linkedin":
+        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${blogDescription}`;
+        break;
+      default:
+        break;
+    }
+
+    if (shareUrl) {
+      window.open(shareUrl, "_blank");
+    }
   };
 
   return (
@@ -82,24 +109,33 @@ export default function BlogDetails() {
                   Technology
                 </span>
                 <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
-                  Web Development
+                  {blog.category}
                 </span>
               </div>
               <div className="flex gap-4 text-gray-600">
-                <button className="hover:text-blue-600 transition-colors">
+                <button
+                  onClick={() => handleSocialShare("facebook")}
+                  className="hover:text-[#F79F35] transition-colors"
+                >
                   <FaFacebook size={24} />
                 </button>
-                <button className="hover:text-blue-400 transition-colors">
-                  <FaTwitter size={24} />
+                <button
+                  onClick={() => handleSocialShare("twitter")}
+                  className="hover:text-[#F79F35] transition-colors"
+                >
+                  <FaXTwitter size={24} />
                 </button>
-                <button className="hover:text-blue-700 transition-colors">
+                <button
+                  onClick={() => handleSocialShare("linkedin")}
+                  className="hover:text-[#F79F35] transition-colors"
+                >
                   <FaLinkedin size={24} />
                 </button>
               </div>
             </div>
 
             <div className="max-w-2xl p-6 bg-white rounded-lg shadow-md">
-              <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
+              <h2 className="text-2xl font-bold text-center mb-6 text-blue-950">
                 Leave a Message
               </h2>
               <form className="space-y-4">
@@ -127,38 +163,41 @@ export default function BlogDetails() {
                     required
                   />
                 </div>
-                <button
-                  type="submit"
-                  className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300"
-                >
+                <Button type="submit" className="bg-blue-950">
                   Submit Review
-                </button>
+                </Button>
               </form>
             </div>
           </article>
           <aside className="lg:w-96 space-y-8">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold mb-4">Related Posts</h3>
+            <div className="bg-white rounded-lg shadow p-6 min-h-screen">
+              <h3 className="text-lg font-semibold mb-4 ">Related Posts</h3>
               <div className="space-y-4">
-                {relatedBlogs.map((relatedBlog) => (
-                  <div
-                    onClick={() => handleRelatedBlogClick(relatedBlog)}
-                    key={relatedBlog.id}
-                    className="flex gap-4"
-                  >
-                    <img
-                      src={relatedBlog.image}
-                      alt="Related post"
-                      className="w-16 h-16 object-cover rounded-full"
-                    />
-                    <div>
-                      <h4 className="font-medium mb-1">{relatedBlog.title}</h4>
-                      <p className="text-sm text-gray-500">
-                        {new Date(relatedBlog.created_at).toDateString()}
-                      </p>
+                {relatedBlogs.length > 0 ? (
+                  relatedBlogs.map((relatedBlog) => (
+                    <div
+                      onClick={() => handleRelatedBlogClick(relatedBlog)}
+                      key={relatedBlog.id}
+                      className="flex gap-4"
+                    >
+                      <img
+                        src={relatedBlog.image}
+                        alt="Related post"
+                        className="w-16 h-16 object-cover rounded-full"
+                      />
+                      <div>
+                        <h4 className="font-medium mb-1">
+                          {relatedBlog.title}
+                        </h4>
+                        <p className="text-sm text-gray-500">
+                          {new Date(relatedBlog.created_at).toDateString()}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p>There is no related blogs yet !</p>
+                )}
               </div>
             </div>
           </aside>

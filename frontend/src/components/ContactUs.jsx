@@ -1,43 +1,43 @@
+import { Button, Textarea, TextInput } from "flowbite-react";
 import {
   FaEnvelope,
   FaPhone,
   FaMapMarkerAlt,
   FaGlobe,
   FaCheck,
+  FaWhatsapp,
 } from "react-icons/fa";
 
 export default function ContactUs() {
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 mt-16">
       <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold text-blue-950 mb-4">
             Get in Touch
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-blue-950">
             Let's discuss your next digital transformation
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
-
           <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            <h2 className="text-2xl font-bold text-blue-950 mb-6">
               Contact Information
             </h2>
             <div className="space-y-6">
               <div className="flex items-start">
-                <FaMapMarkerAlt className="w-6 h-6 text-indigo-600 mt-1" />
+                <FaMapMarkerAlt className="w-6 h-6 text-[#F79F35] mt-1" />
                 <div className="ml-4">
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className="text-lg font-semibold text-blue-950">
                     Head Office
                   </h3>
-                  <p className="text-gray-600">Goalpark, Kohalpur,Banke</p>
+                  <p className="text-gray-600">Goal Park, Kohalpur,Banke</p>
                 </div>
               </div>
               <div className="flex items-center">
-                <FaPhone className="w-6 h-6 text-indigo-600" />
+                <FaPhone className="w-6 h-6 text-[#F79F35]" />
                 <a
                   href="tel:+11234567890"
                   className="ml-4 text-gray-600 hover:text-indigo-600"
@@ -46,21 +46,32 @@ export default function ContactUs() {
                 </a>
               </div>
               <div className="flex items-center">
-                <FaEnvelope className="w-6 h-6 text-indigo-600" />
+                <FaWhatsapp className="w-7 h-7 text-[#F79F35]" />
                 <a
-                  href="mailto:info@nextinfosys.com"
-                  className="ml-4 text-gray-600 hover:text-indigo-600"
+                  href="tel:+11234567890"
+                  className="ml-4 text-gray-600 hover:text-blue-950 hover:font-semibold"
                 >
-                  info@nextinfosys.com
+                  9860501440/ 9868075900
                 </a>
               </div>
               <div className="flex items-center">
-                <FaGlobe className="w-6 h-6 text-indigo-600" />
+                <FaEnvelope className="w-6 h-6 text-[#F79F35]" />
                 <a
-                  href="https://www.nextinfosys.com"
-                  className="ml-4 text-gray-600 hover:text-indigo-600"
+                  target="_blank"
+                  href="mailto:om.nextinfosys@gmail.com"
+                  className="ml-4 text-gray-600 hover:text-blue-950 hover:font-semibold"
                 >
-                  www.nextinfosys.com
+                  om.nextinfosys@gmail.com
+                </a>
+              </div>
+              <div className="flex items-center">
+                <FaGlobe className="w-6 h-6 text-[#F79F35]" />
+                <a
+                  target="_blank"
+                  href="https://nextinfosys.com.np/"
+                  className="ml-4 text-gray-600 hover:text-blue-950 hover:font-semibold"
+                >
+                  www.nextinfosys.com.np
                 </a>
               </div>
             </div>
@@ -68,7 +79,7 @@ export default function ContactUs() {
 
           {/* Services Section */}
           <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            <h2 className="text-2xl font-bold text-blue-950 mb-6">
               Our Services
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -85,7 +96,7 @@ export default function ContactUs() {
                 "IT Consulting",
               ].map((service) => (
                 <div key={service} className="flex items-center">
-                  <FaCheck className="w-4 h-4 text-green-500 mr-2" />
+                  <FaCheck className="w-4 h-4 text-[#F79F35] mr-2" />
                   <span className="text-gray-600">{service}</span>
                 </div>
               ))}
@@ -97,45 +108,28 @@ export default function ContactUs() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow">
             <form className="space-y-6">
-              <h1 className="flex justify-center items-center text-3xl font-bold">
+              <h1 className="flex justify-center items-center text-3xl font-bold text-blue-950">
                 Leave a Message
               </h1>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Full Name
                 </label>
-                <input
-                  type="text"
-                  required
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition duration-200"
-                />
+                <TextInput type="text" required />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Email Address
                 </label>
-                <input
-                  type="email"
-                  required
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition duration-200"
-                />
+                <TextInput type="email" required />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Message
                 </label>
-                <textarea
-                  rows="5"
-                  required
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition duration-200"
-                ></textarea>
+                <Textarea rows="5" required />
               </div>
-              <button
-                type="submit"
-                className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg hover:bg-indigo-700 transition duration-200 font-semibold"
-              >
-                Send Message
-              </button>
+              <Button type="submit" className="bg-blue-950">Send Message</Button>
             </form>
           </div>
 

@@ -11,7 +11,7 @@ export default function IntroSection() {
       </div>
 
       <div className="relative z-10 flex flex-col justify-center items-center h-full text-center">
-        <h1 className="text-5xl font-bold leading-tight mb-4">
+        <h1 className="text-3xl sm:text-5xl font-bold leading-tight mb-4">
           Welcome to Next Infosys Pvt.Ltd
         </h1>
         <p className="text-lg text-gray-300 mb-8">

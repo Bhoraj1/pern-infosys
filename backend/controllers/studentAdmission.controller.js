@@ -255,9 +255,31 @@ export const update_bill = async (req, res, next) => {
       fieldsToUpdate.push("payment_method");
       values.push(payment_method);
     }
+
+    const { rows } = await db.query(
+      "SELECT amount_paid FROM student_admissions WHERE id = $1",
+      [studentId]
+    );
+    const previousAmountPaid = rows[0].amount_paid;
+
     if (amount_paid !== undefined) {
+      const newAmountPaid =
+        parseFloat(previousAmountPaid) + parseFloat(amount_paid);
+
+      if (isNaN(newAmountPaid)) {
+        return res.status(400).json({ error: "Invalid amount_paid value" });
+      }
       fieldsToUpdate.push("amount_paid");
-      values.push(amount_paid);
+      values.push(newAmountPaid);
+
+      const { total_amount } = await db.query(
+        "SELECT total_amount FROM student_admissions WHERE id = $1",
+        [studentId]
+      );
+      const remainingAmount = total_amount - newAmountPaid;
+
+      fieldsToUpdate.push("remaining_amount");
+      values.push(remainingAmount);
     }
 
     if (fieldsToUpdate.length === 0) {

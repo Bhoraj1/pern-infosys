@@ -17,10 +17,6 @@ export default function BillForm() {
   const handleFormChange = (e) => {
     setSelectedStudent({ ...selectedStudent, [e.target.id]: e.target.value });
   };
-  if (e.target.id === "amount_paid") {
-    const newRemainingAmount = selectedStudent.remaining_amount - e.target.value;
-    updatedStudent.remaining_amount = newRemainingAmount;
-  }
 
   const handleSearch = () => {
     if (searchKey.trim() === "") {
@@ -187,16 +183,10 @@ export default function BillForm() {
                   <TextInput
                     id="amount_paid"
                     type="number"
-                    placeholder="Amount paid"
+                    placeholder={` Remaining Amount: ${remainingAmount}`}
                     required
-                    value={selectedStudent.amount_paid || ""}
                     onChange={handleFormChange}
                   />
-                  {selectedStudent.amount_paid != null && (
-                    <p className="text-sm text-red-600">
-                      Remaining Amount: {remainingAmount}
-                    </p>
-                  )}
                 </div>
               </div>
               <Button type="submit" className="bg-blue-950 mt-3">

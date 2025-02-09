@@ -25,7 +25,8 @@ import ServicesForm from "./pages/Admin/service/ServicesForm.jsx";
 import AddTrainingForm from "./pages/Admin/training/AddTrainingForm";
 import BlogDetails from "./pages/BlogDetails.jsx";
 import AdmissionForm from "./pages/Admin/students/AdmissionForm.jsx";
-import ContactUs from "./components/About.jsx";
+import ContactUs from "./components/ContactUs.jsx"
+
 
 function App() {
   return (

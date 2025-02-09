@@ -69,7 +69,7 @@ export default function CoursesPage() {
             </div>
             <a onClick={() => handleCourseClick(course)}>
               <img
-                className="rounded-t-xl h-40 w-full object-cover"
+                className="rounded-t-xl h-40 w-full object-contain"
                 src={course.course_image}
               />
             </a>

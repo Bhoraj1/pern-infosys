@@ -76,13 +76,13 @@ export default function Header() {
   ];
 
   return (
-    <nav className="bg-white md:text-sm fixed top-0 left-0 w-full z-50  border-b-2 ">
-      <div className="gap-x-20 items-center max-w-screen-xl mx-auto px-4 md:flex md:px-8">
-        <div className="flex items-center justify-between py-2 md:block">
+    <nav className="bg-white md:text-sm fixed top-0 left-0 w-full z-50  border-b-2  ">
+      <div className="gap-x-20 items-center max-w-screen-xl mx-auto px-4 md:flex md:px-8 ">
+        <div className="flex items-center justify-between py-2 lg:block">
           <a href="/">
             <img src={logo} alt="logo" className="w-18 h-14" />
           </a>
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <button
               className="menu-btn text-gray-500 hover:text-gray-800"
               onClick={() => setState(!state)}
@@ -96,7 +96,7 @@ export default function Header() {
           </div>
         </div>
         <div
-          className={`flex-1 items-center mb-3 md:mt-0 md:flex ${
+          className={`flex-1 items-center mb-3 md:mt-0 lg:flex ${
             state ? "block" : "hidden"
           } `}
         >
