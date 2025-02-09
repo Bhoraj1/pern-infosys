@@ -18,7 +18,7 @@ export default function Blog() {
             LATEST BLOGS
           </h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16 max-lg:max-w-3xl max-md:max-w-md mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16 max-lg:max-w-3xl max-md:max-w-md mx-auto ">
           {blogs.map((item, index) => (
             <div
               key={index}

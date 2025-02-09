@@ -17,6 +17,10 @@ export default function BillForm() {
   const handleFormChange = (e) => {
     setSelectedStudent({ ...selectedStudent, [e.target.id]: e.target.value });
   };
+  if (e.target.id === "amount_paid") {
+    const newRemainingAmount = selectedStudent.remaining_amount - e.target.value;
+    updatedStudent.remaining_amount = newRemainingAmount;
+  }
 
   const handleSearch = () => {
     if (searchKey.trim() === "") {
