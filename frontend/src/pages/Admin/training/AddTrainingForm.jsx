@@ -77,7 +77,6 @@ export default function AddTrainingForm() {
     formDataObj.append("syllabus", formData.syllabus);
 
     try {
-      console.log("Before Data:", formData);
       setLoading(true);
       let res;
       if (TrainingId) {

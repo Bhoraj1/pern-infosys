@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 
-export default function Admissions() {
+export default function Course_AdmissionsDash() {
   const { adminDetails } = useSelector((state) => state.admin);
   const [admissions, setAdmissions] = useState([]);
   const [totalAdmissions, setTotalAdmissions] = useState(0);
@@ -18,7 +18,6 @@ export default function Admissions() {
         try {
           const res = await fetch(`/api/backend2/getadmissions`);
           const data = await res.json();
-          console.log("API is working", data);
           if (!res.ok) {
             console.error(data.message || "Failed to fetch users.");
           } else {
@@ -63,8 +62,6 @@ export default function Admissions() {
           method: "DELETE",
         }
       );
-      // const data = await res.json();
-      // console.log(data);
       if (res.ok) {
         setAdmissions((prev) =>
           prev.filter((admission) => admission._id !== admissionIdToDelete)
@@ -78,29 +75,9 @@ export default function Admissions() {
   return (
     <>
       <div className="table-auto mt-10 mx-auto p-2 scrollbar scrollbar-track-blue-900 scrollbar-thumb-slate-700">
-        <div className="flex gap-7 justify-center mb-6 ml-10">
-          <div className="flex p-6 gap-4 items-center bg-gradient-to-r from-blue-500 to-teal-400 rounded-lg shadow-lg">
-            <h4 className="text-white font-medium text-lg">
-              Total Admissions:
-            </h4>
-            <p className="text-3xl text-white font-semibold font-tw-cen">
-              {totalAdmissions}
-            </p>
-          </div>
-
-          <div className="flex p-6 gap-4 items-center bg-gradient-to-r from-green-500 to-teal-400 rounded-lg shadow-lg">
-            <h4 className="text-white font-medium text-lg">
-              Last 30 Days Admissions
-            </h4>
-            <p className="text-3xl text-white text-center font-semibold font-tw-cen">
-              {lstMonthAdmissions}
-            </p>
-          </div>
-        </div>
-
         {admissions.length > 0 ? (
           <>
-            <Table key={admissions._id} hoverable className="">
+            <Table hoverable className="">
               <Table.Head>
                 <Table.HeadCell>Created At</Table.HeadCell>
                 <Table.HeadCell>Name</Table.HeadCell>

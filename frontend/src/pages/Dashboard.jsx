@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import DashInquiryUsers from "../components/DashInquiryUsers";
 import DashSidebar from "./DashSidebar";
 import DashProfile from "../components/DashProfile";
-import Admissions from "../components/Admissions";
 import AdmissionForm from "./Admin/students/AdmissionForm";
 import StudentManagementDashboard from "./Admin/students/StudentManagementDashboard";
 import BillForm from "./Admin/BillForm";
@@ -21,6 +20,7 @@ import BlogDash from "./Admin/blog/BlogDash";
 import ReviewDash from "./Admin/revieww/ReviewDash";
 import TrainingDash from "./Admin/training/TrainingDash";
 import CreateBill from "./Admin/CreateBill";
+import Course_AdmissionsDash from "./Admin/Course_Admission_Dash";
 
 export default function Dashboard() {
   const location = useLocation();
@@ -45,7 +45,7 @@ export default function Dashboard() {
         )}
 
         {tab === "inquiry-user" && <DashInquiryUsers />}
-        {tab === "admissions" && <Admissions />}
+        {tab === "admissions" && <Course_AdmissionsDash />}
         {tab === "admission-form" && <AdmissionForm />}
         {tab === "admission-bill" && <AdmissionBill />}
         {tab === "student-dashboard" && <StudentManagementDashboard />}

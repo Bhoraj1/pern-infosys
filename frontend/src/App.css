@@ -51,29 +51,6 @@
 }
 
 
-.syllabus-content h1 {
-  font-weight: semibold;
-  font-size: 1.5rem;
-  color: black; 
-  padding-bottom: 1.25rem;
-}
-
-.syllabus-content h2 {
-  font-size: 1.2rem;
-  color: black; 
-  padding-bottom: 0.25rem;
-}
-
-.syllabus-content h3 {
-  font-size: 1.1rem;
-  color: black; 
-  padding-bottom: 0.25rem;
-}
-
-.syllabus-content *:not(h1):not(h2):not(h3) {
-  display: none;
-}
-
 
 
 

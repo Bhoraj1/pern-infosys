@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 export default function CourseTemplate() {
   const location = useLocation();
   const course = location.state?.course;
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("curriculum");
 
   return (
     <div className="max-w-7xl h-full mx-auto px-4 py-8 mt-10">
@@ -11,13 +11,7 @@ export default function CourseTemplate() {
         <div className="grid md:grid-cols-2 gap-8">
           <div>
             <h1 className="text-4xl font-bold mb-4">{course.title}</h1>
-            <div className="flex items-center gap-4 mb-4">
-              <div className="flex items-center">
-                ★★★★☆ <span className="ml-2 text-gray-600">(4.5)</span>
-              </div>
-              <span>•</span>
-              <span>12,500+ Students Enrolled</span>
-            </div>
+           
             <p className="text-gray-600 mb-6">{course.description}</p>
             <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
               Enroll Now
@@ -36,7 +30,7 @@ export default function CourseTemplate() {
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1">
           <div className="flex border-b mb-8">
-            {["overview", "curriculum", "instructor"].map((tab) => (
+            {["curriculum", "instructor"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -50,15 +44,6 @@ export default function CourseTemplate() {
               </button>
             ))}
           </div>
-          {activeTab === "overview" && (
-            <div>
-              <h2 className="text-2xl font-bold mb-4">What You'll Learn</h2>
-              <div
-                className="syllabus-content"
-                dangerouslySetInnerHTML={{ __html: course.syllabus }}
-              />
-            </div>
-          )}
 
           {activeTab === "curriculum" && (
             <div>
@@ -97,7 +82,7 @@ export default function CourseTemplate() {
         {/* Right Sidebar */}
         <div className="lg:w-80">
           <div className="border rounded-xl p-6 sticky top-8">
-            <div className="text-3xl font-bold mb-4">$149</div>
+            <div className="text-3xl font-bold mb-4">Rs.{course.total_amount}</div>
             <button className="w-full bg-blue-600 text-white py-3 rounded-lg mb-4 hover:bg-blue-700 transition">
               Enroll Now
             </button>
